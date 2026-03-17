@@ -1,0 +1,28 @@
+name: Fetch AI News
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours: 00:00, 06:00, 12:00, 18:00 UTC
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  fetch-news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Trigger news fetch
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X POST "${{ secrets.SITE_URL }}/api/cron" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+
+          http_code=$(echo "$response" | tail -n 1)
+          body=$(echo "$response" | head -n -1)
+
+          echo "HTTP Status: $http_code"
+          echo "Response: $body"
+
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Cron job failed with status $http_code"
+            exit 1
+          fi

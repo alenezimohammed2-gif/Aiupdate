@@ -1,0 +1,31 @@
+{
+  "site": {
+    "name": "AI Pulse",
+    "description": "AI News Hub"
+  },
+  "nav": {
+    "home": "Home",
+    "switchLang": "العربية"
+  },
+  "categories": {
+    "all": "All",
+    "new_models": "New Models",
+    "model_updates": "Model Updates",
+    "ai_tools": "AI Tools",
+    "ai_agents": "AI Agents",
+    "benchmarks": "Benchmarks",
+    "deals": "Deals & Partnerships",
+    "research": "Research"
+  },
+  "news": {
+    "breakingNews": "Breaking News",
+    "readOriginal": "Read Original Article",
+    "noNews": "No news available",
+    "source": "Source",
+    "publishedAt": "Published"
+  },
+  "footer": {
+    "description": "AI News Hub — Auto-updated every 6 hours",
+    "poweredBy": "Powered by Gemini 3 Flash"
+  }
+}

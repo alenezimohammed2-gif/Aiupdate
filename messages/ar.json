@@ -1,0 +1,31 @@
+{
+  "site": {
+    "name": "AI Pulse",
+    "description": "مركز أخبار الذكاء الاصطناعي"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "switchLang": "English"
+  },
+  "categories": {
+    "all": "الكل",
+    "new_models": "نماذج جديدة",
+    "model_updates": "تحديثات نماذج",
+    "ai_tools": "أدوات AI",
+    "ai_agents": "وكلاء AI",
+    "benchmarks": "معايير أداء",
+    "deals": "صفقات وشراكات",
+    "research": "أبحاث"
+  },
+  "news": {
+    "breakingNews": "آخر الأخبار",
+    "readOriginal": "اقرأ المقال الأصلي",
+    "noNews": "لا توجد أخبار حالياً",
+    "source": "المصدر",
+    "publishedAt": "نُشر في"
+  },
+  "footer": {
+    "description": "مركز أخبار الذكاء الاصطناعي — أخبار محدّثة تلقائياً كل 6 ساعات",
+    "poweredBy": "يعمل بواسطة Gemini 3 Flash"
+  }
+}
