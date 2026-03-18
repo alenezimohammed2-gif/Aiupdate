@@ -56,15 +56,18 @@ export async function POST(request: NextRequest) {
     console.log(`Found ${newItems.length} new items after deduplication (capped at 50)`);
 
     if (newItems.length === 0) {
+      const duration = Date.now() - startTime;
+      await supabase.from("cron_logs").insert({
+        fetched: rawItems.length,
+        new_items: 0,
+        processed: 0,
+        duration_ms: duration,
+        status: "success",
+      });
       return NextResponse.json({
         success: true,
         message: "No new articles to process",
-        stats: {
-          fetched: rawItems.length,
-          new: 0,
-          processed: 0,
-          duration_ms: Date.now() - startTime,
-        },
+        stats: { fetched: rawItems.length, new: 0, processed: 0, duration_ms: duration },
       });
     }
 
@@ -97,6 +100,15 @@ export async function POST(request: NextRequest) {
       `Cron job completed: ${processed.length} articles in ${duration}ms`
     );
 
+    // Save log
+    await supabase.from("cron_logs").insert({
+      fetched: rawItems.length,
+      new_items: newItems.length,
+      processed: processed.length,
+      duration_ms: duration,
+      status: "success",
+    });
+
     return NextResponse.json({
       success: true,
       stats: {
@@ -108,6 +120,14 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Cron job failed:", error);
+
+    // Save error log
+    const supabase = getSupabaseAdmin();
+    await supabase.from("cron_logs").insert({
+      status: "error",
+      error_message: error instanceof Error ? error.message : "Unknown error",
+    }).catch(() => {});
+
     return NextResponse.json(
       {
         error: "Internal server error",

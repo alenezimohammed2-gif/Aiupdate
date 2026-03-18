@@ -21,6 +21,7 @@ import {
   Cpu,
   Save,
   Lock,
+  History,
 } from "lucide-react";
 
 const DEFAULT_INSTRUCTIONS_INCLUDE = `1. New AI model releases and major version updates (LLMs, image generation, video generation, audio, multimodal models)
@@ -97,6 +98,11 @@ export default function SettingsPage() {
     "idle" | "testing" | "done"
   >("idle");
   const [testResult, setTestResult] = useState("");
+
+  // Cron logs state
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [cronLogs, setCronLogs] = useState<any[]>([]);
+  const [logsLoading, setLogsLoading] = useState(false);
 
   // Load settings on mount
   useEffect(() => {
@@ -196,6 +202,19 @@ export default function SettingsPage() {
       setTestResult(isArabic ? "فشل الاختبار" : "Test failed");
     }
     setTestStatus("done");
+  };
+
+  // Load cron logs
+  const loadCronLogs = async () => {
+    setLogsLoading(true);
+    try {
+      const res = await fetch("/api/cron-logs");
+      const data = await res.json();
+      setCronLogs(data.logs || []);
+    } catch {
+      setCronLogs([]);
+    }
+    setLogsLoading(false);
   };
 
   const modelInfo = MODEL_OPTIONS.find((m) => m.id === selectedModel);
@@ -426,6 +445,68 @@ export default function SettingsPage() {
                 <pre className="text-sm whitespace-pre-wrap overflow-x-auto" dir="ltr">
                   {testResult}
                 </pre>
+              </div>
+            )}
+          </section>
+
+          {/* Section 5: Cron Logs */}
+          <section className="border border-border/30 rounded-2xl p-5 bg-card">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <History className="w-5 h-5 text-primary" />
+              {isArabic ? "سجل التحديثات" : "Update Logs"}
+            </h2>
+            <p className="text-sm text-muted-foreground mb-3">
+              {isArabic
+                ? "سجل آخر عمليات جلب الأخبار التلقائية"
+                : "Log of recent automatic news fetch operations"}
+            </p>
+
+            <button
+              onClick={loadCronLogs}
+              disabled={logsLoading}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center gap-2 mb-4"
+            >
+              {logsLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <History className="w-4 h-4" />
+              )}
+              {isArabic ? "تحميل السجلات" : "Load Logs"}
+            </button>
+
+            {cronLogs.length > 0 && (
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {cronLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className={`p-3 rounded-lg border text-sm ${
+                      log.status === "success"
+                        ? "border-green-500/20 bg-green-500/5"
+                        : "border-red-500/20 bg-red-500/5"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={`font-medium ${log.status === "success" ? "text-green-400" : "text-red-400"}`}>
+                        {log.status === "success" ? "✅" : "❌"} {log.status}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(log.ran_at).toLocaleString(isArabic ? "ar" : "en")}
+                      </span>
+                    </div>
+                    {log.status === "success" ? (
+                      <div className="text-xs text-muted-foreground flex gap-4 flex-wrap">
+                        <span>{isArabic ? "جُلب" : "Fetched"}: {log.fetched}</span>
+                        <span>{isArabic ? "جديد" : "New"}: {log.new_items}</span>
+                        <span>{isArabic ? "عُولج" : "Processed"}: {log.processed}</span>
+                        <span>{isArabic ? "المدة" : "Duration"}: {(log.duration_ms / 1000).toFixed(1)}s</span>
+                      </div>
+                    ) : (
+                      <div className="text-xs text-red-400">
+                        {log.error_message}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </section>
