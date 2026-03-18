@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
-import { Zap, Globe } from "lucide-react";
+import AnimatedLogo from "./AnimatedLogo";
 
 export default function Header() {
   const t = useTranslations();
@@ -17,19 +17,18 @@ export default function Header() {
   };
 
   return (
-    <header className="border-b border-border bg-card sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <a href={`/${locale}`} className="flex items-center gap-2">
-          <Zap className="w-6 h-6 text-primary" />
-          <span className="text-xl font-bold">{t("site.name")}</span>
+    <header className="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-xl border-b border-border/30">
+      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <a href={`/${locale}`} className="flex items-center gap-2.5 group">
+          <AnimatedLogo size={28} className="text-primary group-hover:text-accent" />
+          <span className="text-lg font-semibold tracking-tight">{t("site.name")}</span>
         </a>
 
         <button
           onClick={switchLocale}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border hover:bg-muted transition-colors text-sm"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <Globe className="w-4 h-4" />
-          <span>{t("nav.switchLang")}</span>
+          {t("nav.switchLang")}
         </button>
       </div>
     </header>

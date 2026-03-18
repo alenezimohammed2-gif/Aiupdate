@@ -2,25 +2,6 @@
 
 import { useTranslations } from "next-intl";
 import { ArticleCategory } from "@/lib/types";
-import {
-  Cpu,
-  RefreshCw,
-  Wrench,
-  Bot,
-  BarChart3,
-  Handshake,
-  FlaskConical,
-} from "lucide-react";
-
-const categoryIcons: Record<ArticleCategory, React.ReactNode> = {
-  new_models: <Cpu className="w-4 h-4" />,
-  model_updates: <RefreshCw className="w-4 h-4" />,
-  ai_tools: <Wrench className="w-4 h-4" />,
-  ai_agents: <Bot className="w-4 h-4" />,
-  benchmarks: <BarChart3 className="w-4 h-4" />,
-  deals: <Handshake className="w-4 h-4" />,
-  research: <FlaskConical className="w-4 h-4" />,
-};
 
 const categories: (ArticleCategory | "all")[] = [
   "all",
@@ -45,19 +26,18 @@ export default function CategoryFilter({
   const t = useTranslations("categories");
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 justify-center">
       {categories.map((cat) => (
         <button
           key={cat}
           onClick={() => onSelect(cat)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors ${
+          className={`px-4 py-2 rounded-full text-sm transition-all duration-200 ${
             selected === cat
               ? "bg-primary text-white"
-              : "bg-muted text-foreground hover:bg-border"
+              : "border border-border/50 text-muted-foreground hover:text-foreground hover:border-border"
           }`}
         >
-          {cat !== "all" && categoryIcons[cat]}
-          <span>{t(cat)}</span>
+          {t(cat)}
         </button>
       ))}
     </div>

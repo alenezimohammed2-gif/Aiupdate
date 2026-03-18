@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { ProcessedArticle } from "@/lib/types";
-import { Clock } from "lucide-react";
+import { Clock, ArrowUpRight } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 
@@ -28,52 +28,44 @@ export default function NewsCard({ article }: NewsCardProps) {
   return (
     <a
       href={`/${locale}/article/${article.id}`}
-      className="block border border-border rounded-lg bg-card hover:bg-card-hover transition-colors overflow-hidden"
+      className="group block rounded-2xl bg-card border border-border/30 hover:border-border/60 transition-all duration-300 overflow-hidden"
     >
       {article.image_url && (
         <div className="aspect-video overflow-hidden">
           <img
             src={article.image_url}
             alt={title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
           />
         </div>
       )}
 
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+      <div className="p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-[11px] uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
             {categoryLabel}
           </span>
-          <span className="text-xs text-muted-foreground">{article.source}</span>
+          <span className="text-[11px] text-muted-foreground">{article.source}</span>
         </div>
 
-        <h3 className="font-semibold text-base mb-2">{title}</h3>
+        <h3 className="font-semibold text-base mb-2.5 leading-relaxed group-hover:text-primary transition-colors">
+          {title}
+        </h3>
 
-        <p className="text-sm text-muted-foreground mb-3">{summary}</p>
+        <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+          {summary}
+        </p>
 
-        {article.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
-            {article.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="flex items-center justify-between pt-3 border-t border-border">
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <Clock className="w-3 h-3" />
             <span>{timeAgo}</span>
           </div>
 
-          <span className="text-xs text-primary font-medium">
-            {isArabic ? "اقرأ المزيد ←" : "Read more →"}
+          <span className="flex items-center gap-1 text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+            {isArabic ? "اقرأ المزيد" : "Read more"}
+            <ArrowUpRight className="w-3 h-3" />
           </span>
         </div>
       </div>

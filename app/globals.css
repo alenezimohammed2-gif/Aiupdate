@@ -1,15 +1,100 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #ffffff;
-  --color-foreground: #0f172a;
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-muted: #f1f5f9;
-  --color-muted-foreground: #64748b;
-  --color-border: #e2e8f0;
-  --color-card: #ffffff;
-  --color-card-hover: #f8fafc;
+  --color-background: #0a0a0f;
+  --color-foreground: #f0f0f5;
+  --color-primary: #6366f1;
+  --color-primary-hover: #818cf8;
+  --color-muted: #16161f;
+  --color-muted-foreground: #9ca3af;
+  --color-border: #1e1e2e;
+  --color-card: #111118;
+  --color-card-hover: #1a1a25;
+  --color-accent: #a78bfa;
   --font-sans: var(--font-inter), sans-serif;
   --font-arabic: var(--font-ibm-arabic), sans-serif;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fade-in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in-delay-1 {
+  animation: fadeInUp 0.6s ease-out 0.1s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-delay-2 {
+  animation: fadeInUp 0.6s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-delay-3 {
+  animation: fadeInUp 0.6s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+/* Text shimmer/shine effect */
+@keyframes textShine {
+  0% { background-position: 0% 0%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 30% 100%; }
+  75% { background-position: 80% 20%; }
+  100% { background-position: 0% 0%; }
+}
+
+.text-shine {
+  background: radial-gradient(
+    circle at 50% 50%,
+    #e5e7eb 0%,
+    #d1d5db 15%,
+    #6b7280 40%,
+    #6b7280 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textShine 4s ease-in-out infinite;
+}
+
+/* Logo shake animation */
+@keyframes electricShake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  10% { transform: translateX(-2px) rotate(-3deg); }
+  20% { transform: translateX(2px) rotate(3deg); }
+  30% { transform: translateX(-2px) rotate(-2deg); }
+  40% { transform: translateX(2px) rotate(2deg); }
+  50% { transform: translateX(-1px) rotate(-1deg); }
+  60% { transform: translateX(1px) rotate(1deg); }
+  70% { transform: translateX(0) rotate(0deg); }
+}
+
+.logo-shake {
+  animation: electricShake 0.5s ease-in-out;
+  animation-iteration-count: 1;
+}
+
+.logo-pulse {
+  animation: electricShake 0.5s ease-in-out infinite;
+  animation-delay: 3s;
+  animation-duration: 0.5s;
+  animation-iteration-count: 1;
 }
