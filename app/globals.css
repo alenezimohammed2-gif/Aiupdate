@@ -12,7 +12,7 @@
   --color-card-hover: #1a1a25;
   --color-accent: #a78bfa;
   --font-sans: var(--font-inter), sans-serif;
-  --font-arabic: var(--font-ibm-arabic), sans-serif;
+  --font-arabic: var(--font-arabic), sans-serif;
 }
 
 /* Smooth scrolling */
@@ -63,8 +63,8 @@ html {
 .text-shine {
   background: radial-gradient(
     circle at 50% 50%,
-    #e5e7eb 0%,
-    #d1d5db 15%,
+    #b0b8c4 0%,
+    #8d95a0 15%,
     #6b7280 40%,
     #6b7280 100%
   );
@@ -72,7 +72,7 @@ html {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: textShine 4s ease-in-out infinite;
+  animation: textShine 5s ease-in-out infinite;
 }
 
 /* Logo shake animation */

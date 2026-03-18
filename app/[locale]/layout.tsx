@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { Inter, IBM_Plex_Sans_Arabic } from "next/font/google";
+import { Inter, Cairo } from "next/font/google";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
@@ -11,10 +11,9 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const ibmPlexArabic = IBM_Plex_Sans_Arabic({
+const cairo = Cairo({
   subsets: ["arabic"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-ibm-arabic",
+  variable: "--font-arabic",
 });
 
 export async function generateMetadata({
@@ -48,7 +47,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={isArabic ? "rtl" : "ltr"}>
       <body
-        className={`${inter.variable} ${ibmPlexArabic.variable} ${
+        className={`${inter.variable} ${cairo.variable} ${
           isArabic ? "font-arabic" : "font-sans"
         } antialiased bg-background text-foreground`}
       >

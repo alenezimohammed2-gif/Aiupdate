@@ -20,7 +20,7 @@ export default function Header() {
     <header className="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-xl border-b border-border/30">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <a href={`/${locale}`} className="flex items-center gap-2.5 group">
-          <AnimatedLogo size={28} className="text-primary group-hover:text-accent" />
+          <AnimatedLogo size={22} className="text-primary group-hover:text-accent" />
           <span className="text-lg font-semibold tracking-tight">{t("site.name")}</span>
         </a>
 

@@ -42,6 +42,11 @@ export default function HomeClient({ articles }: HomeClientProps) {
     setCurrentPage(1);
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const breakingNews = [...articles]
     .sort(
       (a, b) =>
@@ -54,19 +59,40 @@ export default function HomeClient({ articles }: HomeClientProps) {
     <div className="min-h-screen bg-background text-foreground">
       <Header />
 
-      {/* Hero Section */}
+      {/* Hero Section with Video Background */}
       {currentPage === 1 && selectedCategory === "all" && (
-        <section className="pt-24 pb-20 px-6">
-          <div className="max-w-5xl mx-auto text-center">
-            <div className="animate-fade-in">
-              <AnimatedLogo size={56} className="text-primary mx-auto mb-6" />
+        <section className="relative pt-24 pb-20 px-6 overflow-hidden min-h-[80vh] flex items-center justify-center">
+          {/* Video Background */}
+          <div className="absolute inset-0 z-0">
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover blur-[2px] scale-105 opacity-40"
+            >
+              <source
+                src="https://assets.mixkit.co/videos/47669/47669-720.mp4"
+                type="video/mp4"
+              />
+            </video>
+            <div className="absolute inset-0 bg-background/70" />
+          </div>
+
+          {/* Content */}
+          <div className="max-w-5xl mx-auto text-center relative z-10">
+            <div className="flex items-center justify-center gap-5 mb-4 animate-fade-in">
+              <AnimatedLogo size={60} className="text-primary" />
+              <span className="text-5xl md:text-7xl font-bold tracking-tighter">
+                {t("site.name")}
+              </span>
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight mb-6 text-shine">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight leading-tight mb-4 text-shine">
               {isArabic
                 ? "آخر أخبار الذكاء الاصطناعي"
                 : "Latest AI News"}
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-in-delay-2">
+            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-6 animate-fade-in-delay-2">
               {isArabic
                 ? "أخبار محدّثة تلقائياً كل 6 ساعات — مُلخّصة ومُترجمة بالذكاء الاصطناعي"
                 : "Auto-updated every 6 hours — AI-summarized and translated"}
@@ -75,7 +101,7 @@ export default function HomeClient({ articles }: HomeClientProps) {
               href="#news"
               className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors animate-fade-in-delay-3"
             >
-              <ChevronDown className="w-6 h-6 animate-bounce" />
+              <ChevronDown className="w-10 h-10 text-primary animate-bounce" />
             </a>
           </div>
         </section>
@@ -146,7 +172,7 @@ export default function HomeClient({ articles }: HomeClientProps) {
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-16">
               <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
                 className="flex items-center gap-1 px-4 py-2.5 rounded-full border border-border/50 hover:bg-card hover:border-border transition-all disabled:opacity-20 disabled:cursor-not-allowed text-sm"
               >
@@ -162,7 +188,7 @@ export default function HomeClient({ articles }: HomeClientProps) {
                 (page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`w-10 h-10 rounded-full text-sm font-medium transition-all ${
                       currentPage === page
                         ? "bg-primary text-white"
@@ -175,9 +201,7 @@ export default function HomeClient({ articles }: HomeClientProps) {
               )}
 
               <button
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-1 px-4 py-2.5 rounded-full border border-border/50 hover:bg-card hover:border-border transition-all disabled:opacity-20 disabled:cursor-not-allowed text-sm"
               >
@@ -195,13 +219,11 @@ export default function HomeClient({ articles }: HomeClientProps) {
 
       {/* Big Typography Section */}
       <section className="py-32 px-6">
-        <div className="max-w-5xl mx-auto text-center">
+        <div className="max-w-5xl mx-auto flex items-center justify-center gap-5">
+          <AnimatedLogo size={70} className="text-primary" />
           <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-none text-shine">
-            {isArabic ? "AI Pulse" : "AI Pulse"}
+            AI Pulse
           </h2>
-          <p className="text-muted-foreground mt-6 text-sm uppercase tracking-widest">
-            {t("footer.poweredBy")}
-          </p>
         </div>
       </section>
 
