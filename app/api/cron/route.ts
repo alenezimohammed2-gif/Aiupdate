@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchAllFeeds } from "@/lib/rss-fetcher";
 import { processAllArticles, setProcessorSettings } from "@/lib/gemini-processor";
 import { getSupabaseAdmin } from "@/lib/supabase";
-import { generateArticleImage } from "@/lib/image-generator";
 
 export const maxDuration = 300; // 5 minutes max for Vercel
 
@@ -122,11 +121,15 @@ export async function POST(request: NextRequest) {
     console.error("Cron job failed:", error);
 
     // Save error log
-    const supabase = getSupabaseAdmin();
-    await supabase.from("cron_logs").insert({
-      status: "error",
-      error_message: error instanceof Error ? error.message : "Unknown error",
-    }).catch(() => {});
+    try {
+      const supabase = getSupabaseAdmin();
+      await supabase.from("cron_logs").insert({
+        status: "error",
+        error_message: error instanceof Error ? error.message : "Unknown error",
+      });
+    } catch {
+      // ignore log save errors
+    }
 
     return NextResponse.json(
       {
