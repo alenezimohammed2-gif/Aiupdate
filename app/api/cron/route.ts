@@ -49,10 +49,10 @@ export async function POST(request: NextRequest) {
       (existingArticles || []).map((a) => a.source_url)
     );
 
-    // Filter out already-processed articles and limit to newest 50
+    // Filter out already-processed articles and limit to newest 20
     const newItems = rawItems
       .filter((item) => item.url && !existingUrls.has(item.url))
-      .slice(0, 50);
+      .slice(0, 20);
     console.log(`Found ${newItems.length} new items after deduplication (capped at 50)`);
 
     if (newItems.length === 0) {
@@ -83,26 +83,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Step 5: Generate images for articles without images
-    const articlesWithoutImages = processed.filter((a) => !a.image_url);
-    console.log(`Generating images for ${articlesWithoutImages.length} articles...`);
-
-    for (const article of articlesWithoutImages) {
-      const imageUrl = await generateArticleImage(
-        article.title_en,
-        article.category,
-        article.id
-      );
-      if (imageUrl) {
-        await supabase
-          .from("articles")
-          .update({ image_url: imageUrl })
-          .eq("id", article.id);
-        console.log(`Generated image for: ${article.title_en.slice(0, 50)}`);
-      }
-    }
-
-    // Step 6: Clean up old articles (older than 30 days)
+    // Step 5: Clean up old articles (older than 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
