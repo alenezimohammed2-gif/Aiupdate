@@ -97,7 +97,14 @@ export default function SettingsPage() {
   const [testStatus, setTestStatus] = useState<
     "idle" | "testing" | "done"
   >("idle");
-  const [testResult, setTestResult] = useState("");
+  const [testResult, setTestResult] = useState<{
+    isRealArticles: boolean;
+    articles: Array<{ idx: number; title: string; description: string; source: string }>;
+    accepted: Array<{ idx: number; reason: string }>;
+    rejected: Array<{ idx: number; reason: string }>;
+    raw?: string;
+    structured: boolean;
+  } | null>(null);
 
   // Cron logs state
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -180,7 +187,7 @@ export default function SettingsPage() {
   // Test instructions
   const testInstructions = async () => {
     setTestStatus("testing");
-    setTestResult("");
+    setTestResult(null);
     try {
       const res = await fetch("/api/test-instructions", {
         method: "POST",
@@ -194,12 +201,27 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setTestResult(data.result);
-      } else {
-        setTestResult(data.error || "Test failed");
+        if (data.structured) {
+          setTestResult({
+            isRealArticles: data.isRealArticles,
+            articles: data.articles,
+            accepted: data.accepted,
+            rejected: data.rejected,
+            structured: true,
+          });
+        } else {
+          setTestResult({
+            isRealArticles: data.isRealArticles,
+            articles: data.articles,
+            accepted: [],
+            rejected: [],
+            raw: data.result,
+            structured: false,
+          });
+        }
       }
     } catch {
-      setTestResult(isArabic ? "فشل الاختبار" : "Test failed");
+      setTestResult(null);
     }
     setTestStatus("done");
   };
@@ -423,8 +445,8 @@ export default function SettingsPage() {
             </h2>
             <p className="text-sm text-muted-foreground mb-3">
               {isArabic
-                ? "اختبر إرشاداتك على مجموعة من المقالات التجريبية لترى كيف يفلتر النموذج الأخبار."
-                : "Test your instructions on sample articles to see how the model filters news."}
+                ? "اختبر إرشاداتك على مقالات حقيقية من مصادر RSS لترى كيف يفلتر النموذج الأخبار الفعلية."
+                : "Test your instructions on real articles from RSS feeds to see how the model filters actual news."}
             </p>
 
             <button
@@ -441,10 +463,98 @@ export default function SettingsPage() {
             </button>
 
             {testResult && (
-              <div className="mt-3 p-4 bg-muted rounded-lg">
-                <pre className="text-sm whitespace-pre-wrap overflow-x-auto" dir="ltr">
-                  {testResult}
-                </pre>
+              <div className="mt-4 space-y-3">
+                {/* Real vs Sample badge */}
+                <div
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
+                    testResult.isRealArticles
+                      ? "bg-blue-500/10 text-blue-400 border border-blue-500/30"
+                      : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/30"
+                  }`}
+                >
+                  {testResult.isRealArticles
+                    ? isArabic
+                      ? "مقالات حقيقية من RSS"
+                      : "Real RSS articles"
+                    : isArabic
+                      ? "مقالات تجريبية"
+                      : "Sample articles"}
+                </div>
+
+                {/* Summary */}
+                {testResult.structured && (
+                  <div className="text-sm text-muted-foreground">
+                    {isArabic
+                      ? `تم قبول ${testResult.accepted.length} من ${testResult.articles.length} مقال`
+                      : `${testResult.accepted.length} of ${testResult.articles.length} articles accepted`}
+                  </div>
+                )}
+
+                {!testResult.structured && testResult.raw ? (
+                  <pre className="text-sm whitespace-pre-wrap overflow-x-auto p-4 bg-muted rounded-lg" dir="ltr">
+                    {testResult.raw}
+                  </pre>
+                ) : (
+                  <>
+                    {/* Accepted articles */}
+                    {testResult.accepted.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-green-400 mb-2">
+                          {isArabic ? "مقبول" : "Accepted"} ({testResult.accepted.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {testResult.accepted.map((item) => {
+                            const article = testResult.articles.find(
+                              (a) => a.idx === item.idx
+                            );
+                            return (
+                              <div
+                                key={item.idx}
+                                className="p-3 rounded-lg border border-green-500/20 bg-green-500/5"
+                              >
+                                <div className="text-sm font-medium" dir="ltr">
+                                  {article?.title}
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1" dir="ltr">
+                                  {article?.source} — {item.reason}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Rejected articles */}
+                    {testResult.rejected.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-red-400 mb-2">
+                          {isArabic ? "مرفوض" : "Rejected"} ({testResult.rejected.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {testResult.rejected.map((item) => {
+                            const article = testResult.articles.find(
+                              (a) => a.idx === item.idx
+                            );
+                            return (
+                              <div
+                                key={item.idx}
+                                className="p-3 rounded-lg border border-red-500/20 bg-red-500/5"
+                              >
+                                <div className="text-sm font-medium" dir="ltr">
+                                  {article?.title}
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1" dir="ltr">
+                                  {article?.source} — {item.reason}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </section>

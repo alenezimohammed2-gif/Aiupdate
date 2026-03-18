@@ -76,3 +76,33 @@ async function fetchSingleFeed(
     return [];
   }
 }
+
+// Subset of feeds for quick interactive testing (one per category mix)
+const TEST_FEED_INDICES = [0, 3, 9, 12, 14];
+// OpenAI Blog, Google AI Blog, TechCrunch AI, Ars Technica, Hacker News AI
+
+export async function fetchTestFeeds(): Promise<RawFeedItem[]> {
+  const testSources = TEST_FEED_INDICES
+    .filter((i) => i < feedSources.length)
+    .map((i) => feedSources[i]);
+
+  const results = await Promise.allSettled(
+    testSources.map((source) => fetchSingleFeed(source.url, source.name))
+  );
+
+  const allItems: RawFeedItem[] = [];
+
+  for (const result of results) {
+    if (result.status === "fulfilled") {
+      allItems.push(...result.value);
+    }
+  }
+
+  allItems.sort((a, b) => {
+    const dateA = a.published ? new Date(a.published).getTime() : 0;
+    const dateB = b.published ? new Date(b.published).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  return allItems;
+}
