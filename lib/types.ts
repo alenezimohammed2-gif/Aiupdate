@@ -13,6 +13,8 @@ export interface ProcessedArticle {
   title_ar: string;
   summary_en: string;
   summary_ar: string;
+  detail_en: string;
+  detail_ar: string;
   category: ArticleCategory;
   source: string;
   source_url: string;

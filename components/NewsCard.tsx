@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { ProcessedArticle } from "@/lib/types";
-import { ExternalLink, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 
@@ -25,7 +25,10 @@ export default function NewsCard({ article }: NewsCardProps) {
   });
 
   return (
-    <article className="border border-border rounded-lg bg-card hover:bg-card-hover transition-colors overflow-hidden">
+    <a
+      href={`/${locale}/article/${article.id}`}
+      className="block border border-border rounded-lg bg-card hover:bg-card-hover transition-colors overflow-hidden"
+    >
       {article.image_url && (
         <div className="aspect-video overflow-hidden">
           <img
@@ -45,11 +48,9 @@ export default function NewsCard({ article }: NewsCardProps) {
           <span className="text-xs text-muted-foreground">{article.source}</span>
         </div>
 
-        <h3 className="font-semibold text-base mb-2 line-clamp-2">{title}</h3>
+        <h3 className="font-semibold text-base mb-2">{title}</h3>
 
-        <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
-          {summary}
-        </p>
+        <p className="text-sm text-muted-foreground mb-3">{summary}</p>
 
         {article.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
@@ -70,17 +71,11 @@ export default function NewsCard({ article }: NewsCardProps) {
             <span>{timeAgo}</span>
           </div>
 
-          <a
-            href={article.source_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 text-xs text-primary hover:underline"
-          >
-            <span>{t("news.readOriginal")}</span>
-            <ExternalLink className="w-3 h-3" />
-          </a>
+          <span className="text-xs text-primary font-medium">
+            {isArabic ? "اقرأ المزيد ←" : "Read more →"}
+          </span>
         </div>
       </div>
-    </article>
+    </a>
   );
 }

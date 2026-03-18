@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAllFeeds } from "@/lib/rss-fetcher";
-import { processAllArticles } from "@/lib/gemini-processor";
+import { processAllArticles, setProcessorSettings } from "@/lib/gemini-processor";
 import { getSupabaseAdmin } from "@/lib/supabase";
 
 export const maxDuration = 300; // 5 minutes max for Vercel
@@ -18,6 +18,22 @@ export async function POST(request: NextRequest) {
     const startTime = Date.now();
     const supabase = getSupabaseAdmin();
 
+    // Step 0: Load settings
+    const { data: settingsData } = await supabase
+      .from("settings")
+      .select("*")
+      .eq("id", "global")
+      .single();
+
+    if (settingsData) {
+      setProcessorSettings({
+        model: settingsData.selected_model,
+        instructionsInclude: settingsData.custom_instructions_include,
+        instructionsExclude: settingsData.custom_instructions_exclude,
+        keywords: settingsData.keywords,
+      });
+    }
+
     // Step 1: Fetch all RSS feeds
     console.log("Fetching RSS feeds...");
     const rawItems = await fetchAllFeeds();
@@ -32,9 +48,11 @@ export async function POST(request: NextRequest) {
       (existingArticles || []).map((a) => a.source_url)
     );
 
-    // Filter out already-processed articles
-    const newItems = rawItems.filter((item) => !existingUrls.has(item.url));
-    console.log(`Found ${newItems.length} new items after deduplication`);
+    // Filter out already-processed articles and limit to newest 50
+    const newItems = rawItems
+      .filter((item) => item.url && !existingUrls.has(item.url))
+      .slice(0, 50);
+    console.log(`Found ${newItems.length} new items after deduplication (capped at 50)`);
 
     if (newItems.length === 0) {
       return NextResponse.json({

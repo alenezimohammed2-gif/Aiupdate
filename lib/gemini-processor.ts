@@ -2,8 +2,25 @@ import OpenAI from "openai";
 import { RawFeedItem, ProcessedArticle, ArticleCategory } from "./types";
 import crypto from "crypto";
 
-const PRIMARY_MODEL = "google/gemini-3-flash-preview";
+let ACTIVE_MODEL = "google/gemini-3-flash-preview";
 const FALLBACK_MODEL = "google/gemini-2.5-flash";
+let CUSTOM_INSTRUCTIONS_INCLUDE = "";
+let CUSTOM_INSTRUCTIONS_EXCLUDE = "";
+let FILTER_KEYWORDS: string[] = [];
+
+export function setProcessorSettings(settings: {
+  model?: string;
+  instructionsInclude?: string;
+  instructionsExclude?: string;
+  keywords?: string[];
+}) {
+  if (settings.model) ACTIVE_MODEL = settings.model;
+  if (settings.instructionsInclude !== undefined)
+    CUSTOM_INSTRUCTIONS_INCLUDE = settings.instructionsInclude;
+  if (settings.instructionsExclude !== undefined)
+    CUSTOM_INSTRUCTIONS_EXCLUDE = settings.instructionsExclude;
+  if (settings.keywords) FILTER_KEYWORDS = settings.keywords;
+}
 
 function getClient(): OpenAI {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -26,7 +43,7 @@ function generateId(title: string, source: string): string {
 
 async function callGemini(prompt: string, model?: string): Promise<string> {
   const client = getClient();
-  const modelName = model || PRIMARY_MODEL;
+  const modelName = model || ACTIVE_MODEL;
 
   try {
     const response = await client.chat.completions.create({
@@ -36,9 +53,9 @@ async function callGemini(prompt: string, model?: string): Promise<string> {
     });
     return response.choices[0]?.message?.content || "";
   } catch (error) {
-    if (modelName === PRIMARY_MODEL) {
+    if (modelName === ACTIVE_MODEL) {
       console.warn(
-        `Primary model ${PRIMARY_MODEL} failed, falling back to ${FALLBACK_MODEL}`
+        `Primary model ${ACTIVE_MODEL} failed, falling back to ${FALLBACK_MODEL}`
       );
       return callGemini(prompt, FALLBACK_MODEL);
     }
@@ -71,20 +88,25 @@ export async function filterArticles(
       description: item.description.slice(0, 200),
     }));
 
-    const prompt = `You are an AI news editor. From the following articles, select ONLY articles that are about:
-1. New AI model releases or updates (LLMs, image models, video models, etc.)
-2. Successful new AI tools with significant impact
-3. AI agents and new agent frameworks
-4. Benchmark results and model comparisons
-5. Major AI deals, partnerships, or acquisitions
-6. Important AI research papers or discoveries
+    let prompt = `You are an AI news editor. From the following articles, select ONLY relevant ones.\n\n`;
 
-EXCLUDE: Pure opinion pieces, marketing announcements, general tutorials, non-AI topics.
+    if (CUSTOM_INSTRUCTIONS_INCLUDE) {
+      prompt += `INCLUDE articles about: ${CUSTOM_INSTRUCTIONS_INCLUDE}\n`;
+    } else {
+      prompt += `INCLUDE articles about:\n1. New AI model releases or updates (LLMs, image models, video models, etc.)\n2. Successful new AI tools with significant impact\n3. AI agents and new agent frameworks\n4. Benchmark results and model comparisons\n5. Major AI deals, partnerships, or acquisitions\n6. Important AI research papers or discoveries\n`;
+    }
 
-Articles:
-${JSON.stringify(articlesForPrompt, null, 2)}
+    if (CUSTOM_INSTRUCTIONS_EXCLUDE) {
+      prompt += `\nEXCLUDE articles about: ${CUSTOM_INSTRUCTIONS_EXCLUDE}\n`;
+    } else {
+      prompt += `\nEXCLUDE: Pure opinion pieces, marketing announcements, general tutorials, non-AI topics.\n`;
+    }
 
-Return ONLY a JSON array of the idx numbers of accepted articles. Example: [0, 2, 5]`;
+    if (FILTER_KEYWORDS.length > 0) {
+      prompt += `\nPRIORITY KEYWORDS (must match at least one): ${FILTER_KEYWORDS.join(", ")}\n`;
+    }
+
+    prompt += `\nArticles:\n${JSON.stringify(articlesForPrompt, null, 2)}\n\nReturn ONLY a JSON array of the idx numbers of accepted articles. Example: [0, 2, 5]`;
 
     try {
       const result = await callGemini(prompt);
@@ -118,8 +140,10 @@ Return a JSON object with these exact fields:
 {
   "category": one of ["new_models", "model_updates", "ai_tools", "ai_agents", "benchmarks", "deals", "research"],
   "summary_en": "2-3 sentence English summary focusing on what's new, key features, and why it matters",
+  "detail_en": "Detailed English summary (5-8 sentences). Cover: what was announced, key features and capabilities, how it compares to previous versions or competitors, who it impacts, and why it matters for the AI community. Be informative and comprehensive.",
   "title_ar": "Arabic translation of the title. Keep technical terms in English (API, LLM, GPU, etc.). Do NOT translate company or product names.",
-  "summary_ar": "Arabic translation of the summary. Keep technical terms in English. Make it natural and fluent.",
+  "summary_ar": "Arabic translation of summary_en. Keep technical terms in English. Make it natural and fluent.",
+  "detail_ar": "Arabic translation of detail_en. Keep technical terms in English (API, LLM, GPU, Token, Benchmark, Fine-tuning, etc.). Do NOT translate company or product names. Make it natural, fluent, and comprehensive.",
   "relevance_score": number from 1-10 (10 = most important),
   "tags": ["tag1", "tag2", "tag3"] (3-5 English keyword tags),
   "mentioned_models": ["model names mentioned, e.g. GPT-5, Claude 4"],
@@ -152,6 +176,8 @@ Return ONLY the JSON object, no other text.`;
       title_ar: parsed.title_ar || item.title,
       summary_en: parsed.summary_en || item.description.slice(0, 300),
       summary_ar: parsed.summary_ar || parsed.summary_en || "",
+      detail_en: parsed.detail_en || parsed.summary_en || "",
+      detail_ar: parsed.detail_ar || parsed.summary_ar || "",
       category,
       source: item.source,
       source_url: item.url,
