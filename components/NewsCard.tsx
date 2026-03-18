@@ -16,7 +16,8 @@ export default function NewsCard({ article }: NewsCardProps) {
   const isArabic = locale === "ar";
 
   const title = isArabic ? article.title_ar : article.title_en;
-  const summary = isArabic ? article.summary_ar : article.summary_en;
+  const fullSummary = isArabic ? article.summary_ar : article.summary_en;
+  const summary = fullSummary.split(/[.،。!]/)[0] + ".";
   const categoryLabel = t(`categories.${article.category}`);
 
   const timeAgo = formatDistanceToNow(new Date(article.published_at), {

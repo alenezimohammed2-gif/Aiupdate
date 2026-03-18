@@ -74,19 +74,8 @@ export default function ArticleDetail({ article }: ArticleDetailProps) {
           </div>
         )}
 
-        {/* Short summary */}
-        <div className="bg-muted rounded-lg p-4 mb-6">
-          <p className="text-sm font-medium text-muted-foreground mb-1">
-            {isArabic ? "ملخص سريع" : "Quick Summary"}
-          </p>
-          <p className="text-base">{summary}</p>
-        </div>
-
-        {/* Detailed content */}
+        {/* Article content */}
         <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-3">
-            {isArabic ? "التفاصيل الكاملة" : "Full Details"}
-          </h2>
           <div className="text-base leading-relaxed whitespace-pre-line">
             {detail}
           </div>

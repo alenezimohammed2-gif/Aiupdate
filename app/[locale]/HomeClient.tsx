@@ -24,9 +24,9 @@ export default function HomeClient({ articles }: HomeClientProps) {
       ? articles
       : articles.filter((a) => a.category === selectedCategory);
 
-  // Top 3 articles by relevance score for "breaking news"
+  // Top 3 most recent articles for "breaking news"
   const breakingNews = [...articles]
-    .sort((a, b) => b.relevance_score - a.relevance_score)
+    .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
     .slice(0, 3);
 
   return (

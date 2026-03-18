@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchAllFeeds } from "@/lib/rss-fetcher";
 import { processAllArticles, setProcessorSettings } from "@/lib/gemini-processor";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { generateArticleImage } from "@/lib/image-generator";
 
 export const maxDuration = 300; // 5 minutes max for Vercel
 
@@ -82,7 +83,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Step 5: Clean up old articles (older than 30 days)
+    // Step 5: Generate images for articles without images
+    const articlesWithoutImages = processed.filter((a) => !a.image_url);
+    console.log(`Generating images for ${articlesWithoutImages.length} articles...`);
+
+    for (const article of articlesWithoutImages) {
+      const imageUrl = await generateArticleImage(
+        article.title_en,
+        article.category,
+        article.id
+      );
+      if (imageUrl) {
+        await supabase
+          .from("articles")
+          .update({ image_url: imageUrl })
+          .eq("id", article.id);
+        console.log(`Generated image for: ${article.title_en.slice(0, 50)}`);
+      }
+    }
+
+    // Step 6: Clean up old articles (older than 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
