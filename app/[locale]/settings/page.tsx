@@ -247,10 +247,10 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <Header />
 
-      <main className="flex-1 max-w-4xl mx-auto px-4 py-6 w-full">
+      <main className="flex-1 max-w-4xl mx-auto px-4 pt-24 pb-10 w-full">
         <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
           <Settings className="w-6 h-6" />
           {isArabic ? "الإعدادات" : "Settings"}
@@ -258,7 +258,7 @@ export default function SettingsPage() {
 
         <div className="space-y-6">
           {/* Section 1: Model Selection */}
-          <section className="border border-border rounded-lg p-5">
+          <section className="border border-border/30 rounded-2xl p-5 bg-card">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Cpu className="w-5 h-5 text-primary" />
               {isArabic ? "النموذج المستخدم" : "AI Model"}
@@ -294,7 +294,7 @@ export default function SettingsPage() {
           </section>
 
           {/* Section 2: Connection Status */}
-          <section className="border border-border rounded-lg p-5">
+          <section className="border border-border/30 rounded-2xl p-5 bg-card">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               {connectionStatus === "success" ? (
                 <Wifi className="w-5 h-5 text-green-500" />
@@ -332,8 +332,8 @@ export default function SettingsPage() {
               <div
                 className={`mt-3 p-3 rounded-lg flex items-center gap-2 text-sm ${
                   connectionStatus === "success"
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
+                    ? "bg-green-500/10 text-green-400 border border-green-500/30"
+                    : "bg-red-500/10 text-red-400 border border-red-500/30"
                 }`}
               >
                 {connectionStatus === "success" ? (
@@ -352,7 +352,7 @@ export default function SettingsPage() {
           </section>
 
           {/* Section 3: Custom Instructions */}
-          <section className="border border-border rounded-lg p-5">
+          <section className="border border-border/30 rounded-2xl p-5 bg-card">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5 text-primary" />
               {isArabic ? "إرشادات النموذج" : "Model Instructions"}
@@ -365,7 +365,7 @@ export default function SettingsPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1 text-green-700">
+                <label className="block text-sm font-medium mb-1 text-green-400">
                   {isArabic
                     ? "✅ الأخبار المطلوب جلبها (تضمين)"
                     : "✅ News to Include"}
@@ -375,12 +375,12 @@ export default function SettingsPage() {
                   onChange={(e) => setInstructionsInclude(e.target.value)}
                   rows={8}
                   dir="ltr"
-                  className="w-full px-3 py-2 border border-green-200 rounded-lg bg-green-50/30 text-sm focus:outline-none focus:border-green-500 resize-vertical font-mono"
+                  className="w-full px-3 py-2 border border-green-500/20 rounded-lg bg-green-500/5 text-sm text-foreground focus:outline-none focus:border-green-500/50 resize-vertical font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1 text-red-700">
+                <label className="block text-sm font-medium mb-1 text-red-400">
                   {isArabic
                     ? "❌ الأخبار المطلوب استبعادها (استثناء)"
                     : "❌ News to Exclude"}
@@ -390,14 +390,14 @@ export default function SettingsPage() {
                   onChange={(e) => setInstructionsExclude(e.target.value)}
                   rows={8}
                   dir="ltr"
-                  className="w-full px-3 py-2 border border-red-200 rounded-lg bg-red-50/30 text-sm focus:outline-none focus:border-red-500 resize-vertical font-mono"
+                  className="w-full px-3 py-2 border border-red-500/20 rounded-lg bg-red-500/5 text-sm text-foreground focus:outline-none focus:border-red-500/50 resize-vertical font-mono"
                 />
               </div>
             </div>
           </section>
 
           {/* Section 4: Test Instructions */}
-          <section className="border border-border rounded-lg p-5">
+          <section className="border border-border/30 rounded-2xl p-5 bg-card">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <FlaskConical className="w-5 h-5 text-primary" />
               {isArabic ? "اختبار الإرشادات" : "Test Instructions"}
@@ -445,7 +445,7 @@ export default function SettingsPage() {
               {isArabic ? "حفظ الإعدادات" : "Save Settings"}
             </button>
             {saveMessage && (
-              <span className="text-sm text-green-600">{saveMessage}</span>
+              <span className="text-sm text-green-400">{saveMessage}</span>
             )}
           </div>
         </div>
