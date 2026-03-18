@@ -1,6 +1,24 @@
 import { getSupabaseAdmin } from "./supabase";
+import { ArticleCategory } from "./types";
 
 const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
+
+const categoryStyles: Record<ArticleCategory, string> = {
+  new_models:
+    "Futuristic 3D render style. Glowing neural network brain with light particles. Dark background with neon blue and purple accents. Cinematic lighting, depth of field.",
+  model_updates:
+    "Clean isometric illustration style. Software update concept with gears, arrows, and data flow. Soft gradient colors (blue to teal). Modern and minimal.",
+  ai_tools:
+    "Flat digital art style. Vibrant colors, geometric shapes representing tools and workflows. Orange and blue palette. Modern startup aesthetic.",
+  ai_agents:
+    "Cyberpunk neon style. Autonomous robot or digital agent in action. Dark background with glowing neon lines (green and cyan). Futuristic atmosphere.",
+  benchmarks:
+    "Data visualization style. Abstract 3D bar charts, performance graphs, and metrics floating in space. Blue and white color scheme. Professional and analytical.",
+  deals:
+    "Photorealistic corporate style. Handshake concept with digital overlay, connected nodes, partnership imagery. Gold and dark blue tones. Business professional.",
+  research:
+    "Scientific illustration style. DNA helix, molecular structures, or abstract mathematical patterns. Deep indigo and white palette. Academic and elegant.",
+};
 
 export async function generateArticleImage(
   title: string,
@@ -11,22 +29,32 @@ export async function generateArticleImage(
   if (!apiKey) return null;
 
   try {
-    const prompt = `Generate a professional, modern thumbnail image for this AI news article.
-Title: "${title}"
-Category: ${category}
-Style: Clean, minimal, tech-focused. Use blue and dark tones. No text on the image. Abstract tech visualization related to the topic.`;
+    const style =
+      categoryStyles[category as ArticleCategory] ||
+      "Modern tech style. Clean, minimal. Blue and dark tones.";
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: IMAGE_MODEL,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
+    const prompt = `Generate a professional thumbnail image for this AI news article. NO TEXT OR WORDS on the image.
+
+Title: "${title}"
+
+Visual style: ${style}
+
+Important: Do NOT include any text, letters, words, or watermarks in the image. Pure visual only.`;
+
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: IMAGE_MODEL,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      }
+    );
 
     if (!response.ok) {
       console.error("Image generation failed:", response.status);
