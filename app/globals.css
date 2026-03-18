@@ -63,10 +63,10 @@ html {
 .text-shine {
   background: radial-gradient(
     circle at 50% 50%,
-    #b0b8c4 0%,
-    #8d95a0 15%,
-    #6b7280 40%,
-    #6b7280 100%
+    #ffffff 0%,
+    #d1d5db 15%,
+    #9ca3af 40%,
+    #9ca3af 100%
   );
   background-size: 300% 300%;
   -webkit-background-clip: text;
@@ -89,6 +89,19 @@ html {
 
 .logo-shake {
   animation: electricShake 0.5s ease-in-out;
+  animation-iteration-count: 1;
+}
+
+@keyframes colorShift {
+  0% { color: #6366f1; }
+  25% { color: #d8b4fe; }
+  50% { color: #e9d5ff; }
+  75% { color: #d8b4fe; }
+  100% { color: #6366f1; }
+}
+
+.logo-color-shift {
+  animation: electricShake 0.5s ease-in-out, colorShift 0.5s ease-in-out;
   animation-iteration-count: 1;
 }
 

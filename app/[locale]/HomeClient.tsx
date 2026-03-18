@@ -6,6 +6,7 @@ import { ProcessedArticle, ArticleCategory } from "@/lib/types";
 import Header from "@/components/Header";
 import CategoryFilter from "@/components/CategoryFilter";
 import NewsCard from "@/components/NewsCard";
+import BreakingNewsSection from "@/components/breaking-news/BreakingNewsSection";
 import Footer from "@/components/Footer";
 import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import AnimatedLogo from "@/components/AnimatedLogo";
@@ -81,28 +82,33 @@ export default function HomeClient({ articles }: HomeClientProps) {
 
           {/* Content */}
           <div className="max-w-5xl mx-auto text-center relative z-10">
-            <div className="flex items-center justify-center gap-5 mb-4 animate-fade-in">
+            <div className="flex items-center justify-center gap-5 mb-4 animate-fade-in" dir="rtl">
               <AnimatedLogo size={60} className="text-primary" />
-              <span className="text-5xl md:text-7xl font-bold tracking-tighter">
+              <span className="font-sans font-bold tracking-tighter" style={{ fontSize: "clamp(48px, 8vw, 80px)" }}>
                 {t("site.name")}
               </span>
             </div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight leading-tight mb-4 text-shine">
+            <h1 className="font-bold tracking-tight leading-tight mb-4 text-shine" style={{ fontSize: "clamp(22px, 3vw, 36px)" }}>
               {isArabic
-                ? "آخر أخبار الذكاء الاصطناعي"
-                : "Latest AI News"}
+                ? "آخر الأخبار والتحديثات في مجال الذكاء الاصطناعي"
+                : "Latest News & Updates in Artificial Intelligence"}
             </h1>
-            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-6 animate-fade-in-delay-2">
+            <p className="text-muted-foreground max-w-2xl mx-auto mb-6 animate-fade-in-delay-2" style={{ fontSize: "clamp(14px, 2vw, 18px)" }}>
               {isArabic
-                ? "أخبار محدّثة تلقائياً كل 6 ساعات — مُلخّصة ومُترجمة بالذكاء الاصطناعي"
-                : "Auto-updated every 6 hours — AI-summarized and translated"}
+                ? "أخبار يومية مترجمة وملخصة تبقيك على اطلاع لكل ماهو جديد في هذا المجال!"
+                : "Daily translated and summarized news to keep you up to date with everything new in this field!"}
             </p>
-            <a
-              href="#news"
-              className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors animate-fade-in-delay-3"
-            >
-              <ChevronDown className="w-10 h-10 text-primary animate-bounce" />
-            </a>
+            <div className="animate-fade-in-delay-3">
+              <a
+                href="#news"
+                className="inline-flex flex-col items-center text-primary hover:text-primary-hover transition-colors animate-bounce"
+              >
+                <span className="font-medium mb-1" style={{ fontSize: "14px" }}>
+                  {isArabic ? "استعراض الأخبار حسب التصنيف" : "Browse news by category"}
+                </span>
+                <ChevronDown className="w-10 h-10" />
+              </a>
+            </div>
           </div>
         </section>
       )}
@@ -111,23 +117,7 @@ export default function HomeClient({ articles }: HomeClientProps) {
       {breakingNews.length > 0 &&
         currentPage === 1 &&
         selectedCategory === "all" && (
-          <section className="px-6 pb-16">
-            <div className="max-w-7xl mx-auto">
-              <h2 className="text-sm uppercase tracking-widest text-muted-foreground mb-8 text-center">
-                {t("news.breakingNews")}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {breakingNews.map((article, i) => (
-                  <div
-                    key={article.id}
-                    className={`animate-fade-in-delay-${i + 1}`}
-                  >
-                    <NewsCard article={article} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+          <BreakingNewsSection articles={breakingNews} />
         )}
 
       {/* Divider */}

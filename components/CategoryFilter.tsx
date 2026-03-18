@@ -26,12 +26,12 @@ export default function CategoryFilter({
   const t = useTranslations("categories");
 
   return (
-    <div className="flex flex-wrap gap-2 justify-center">
+    <div className="flex flex-wrap gap-3 justify-center">
       {categories.map((cat) => (
         <button
           key={cat}
           onClick={() => onSelect(cat)}
-          className={`px-4 py-2 rounded-full text-sm transition-all duration-200 ${
+          className={`px-5 py-2.5 rounded-full text-base transition-all duration-200 ${
             selected === cat
               ? "bg-primary text-white"
               : "border border-border/50 text-muted-foreground hover:text-foreground hover:border-border"

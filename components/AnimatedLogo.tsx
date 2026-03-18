@@ -25,7 +25,7 @@ export default function AnimatedLogo({
 
   return (
     <Zap
-      className={`transition-colors ${shaking ? "logo-shake" : ""} ${className}`}
+      className={`transition-colors ${shaking ? "logo-shake logo-color-shift" : ""} ${className}`}
       style={{ width: size, height: size }}
     />
   );
