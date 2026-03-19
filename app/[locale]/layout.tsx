@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Inter, Cairo } from "next/font/google";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import { Analytics } from "@vercel/analytics/next";
 import "../globals.css";
 
 const inter = Inter({
@@ -54,6 +55,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           {children}
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );
