@@ -111,18 +111,13 @@ export default function HomeClient({ articles }: HomeClientProps) {
                 ? "آخر الأخبار والتحديثات في مجال الذكاء الاصطناعي"
                 : "Latest News & Updates in Artificial Intelligence"}
             </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto mb-6 animate-fade-in-delay-2" style={{ fontSize: "clamp(14px, 2vw, 18px)" }}>
-              {isArabic
-                ? "أخبار يومية مترجمة وملخصة تبقيك على اطلاع لكل ماهو جديد في هذا المجال!"
-                : "Daily translated and summarized news to keep you up to date with everything new in this field!"}
-            </p>
-            <div className="animate-fade-in-delay-3">
+            <div className="animate-fade-in-delay-2 mt-8">
               <a
                 href="#news"
                 className="inline-flex flex-col items-center text-primary hover:text-primary-hover transition-colors animate-bounce"
               >
                 <span className="font-medium mb-1" style={{ fontSize: "14px" }}>
-                  {isArabic ? "استعراض الأخبار حسب التصنيف" : "Browse news by category"}
+                  {isArabic ? "اضغط هنا للاستعراض حسب التصنيف" : "Click here to browse by category"}
                 </span>
                 <ChevronDown className="w-10 h-10" />
               </a>
