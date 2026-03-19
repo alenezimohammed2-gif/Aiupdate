@@ -74,8 +74,8 @@ async function runCronJob() {
     // Filter out already-processed articles and limit to newest 20
     const newItems = rawItems
       .filter((item) => item.url && !existingUrls.has(item.url))
-      .slice(0, 20);
-    console.log(`Found ${newItems.length} new items after deduplication (capped at 20)`);
+      .slice(0, 50);
+    console.log(`Found ${newItems.length} new items after deduplication (capped at 50)`);
 
     if (newItems.length === 0) {
       const duration = Date.now() - startTime;

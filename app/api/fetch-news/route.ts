@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     // Filter out already-processed articles and limit to newest 20
     const newItems = rawItems
       .filter((item) => item.url && !existingUrls.has(item.url))
-      .slice(0, 20);
+      .slice(0, 50);
 
     if (newItems.length === 0) {
       const duration = Date.now() - startTime;
