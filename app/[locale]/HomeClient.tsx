@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { ProcessedArticle, ArticleCategory } from "@/lib/types";
 import Header from "@/components/Header";
@@ -12,6 +12,13 @@ import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import AnimatedLogo from "@/components/AnimatedLogo";
 
 const ARTICLES_PER_PAGE = 12;
+
+const HERO_VIDEOS = [
+  "https://assets.mixkit.co/videos/30143/30143-720.mp4",
+  "https://assets.mixkit.co/videos/30170/30170-720.mp4",
+  "https://assets.mixkit.co/videos/47669/47669-720.mp4",
+  "https://assets.mixkit.co/videos/30042/30042-720.mp4",
+];
 
 interface HomeClientProps {
   articles: ProcessedArticle[];
@@ -48,6 +55,16 @@ export default function HomeClient({ articles }: HomeClientProps) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // Rotate background video
+  const [videoIndex, setVideoIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setVideoIndex((prev) => (prev + 1) % HERO_VIDEOS.length);
+    }, 2 * 60 * 1000); // 2 minutes
+    return () => clearInterval(timer);
+  }, []);
+
   const breakingNews = [...articles]
     .sort(
       (a, b) =>
@@ -66,14 +83,15 @@ export default function HomeClient({ articles }: HomeClientProps) {
           {/* Video Background */}
           <div className="absolute inset-0 z-0">
             <video
+              key={videoIndex}
               autoPlay
               muted
               loop
               playsInline
-              className="w-full h-full object-cover blur-[2px] scale-105 opacity-40"
+              className="w-full h-full object-cover blur-[1px] scale-105 opacity-50 transition-opacity duration-1000"
             >
               <source
-                src="https://assets.mixkit.co/videos/47669/47669-720.mp4"
+                src={HERO_VIDEOS[videoIndex]}
                 type="video/mp4"
               />
             </video>
