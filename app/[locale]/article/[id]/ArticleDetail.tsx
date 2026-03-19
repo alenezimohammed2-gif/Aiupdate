@@ -23,12 +23,12 @@ export default function ArticleDetail({ article }: ArticleDetailProps) {
     : article.detail_en || article.summary_en;
   const categoryLabel = t(`categories.${article.category}`);
 
-  const timeAgo = formatDistanceToNow(new Date(article.published_at), {
+  const timeAgo = formatDistanceToNow(new Date(article.processed_at), {
     addSuffix: true,
     locale: isArabic ? ar : enUS,
   });
 
-  const fullDate = format(new Date(article.published_at), "PPP", {
+  const fullDate = format(new Date(article.processed_at), "PPP", {
     locale: isArabic ? ar : enUS,
   });
 

@@ -11,7 +11,7 @@ async function getArticles(): Promise<ProcessedArticle[]> {
     const { data, error } = await supabase
       .from("articles")
       .select("*")
-      .order("published_at", { ascending: false })
+      .order("processed_at", { ascending: false })
       .limit(100);
 
     if (error) {

@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   let query = supabase
     .from("articles")
     .select("*")
-    .order("published_at", { ascending: false })
+    .order("processed_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (category) {

@@ -51,8 +51,8 @@ export default function HomeClient({ articles }: HomeClientProps) {
   const breakingNews = [...articles]
     .sort(
       (a, b) =>
-        new Date(b.published_at).getTime() -
-        new Date(a.published_at).getTime()
+        new Date(b.processed_at).getTime() -
+        new Date(a.processed_at).getTime()
     )
     .slice(0, 3);
 

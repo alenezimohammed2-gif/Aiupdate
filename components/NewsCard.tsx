@@ -20,7 +20,7 @@ export default function NewsCard({ article }: NewsCardProps) {
   const summary = fullSummary.split(/[.،。!]/)[0] + ".";
   const categoryLabel = t(`categories.${article.category}`);
 
-  const timeAgo = formatDistanceToNow(new Date(article.published_at), {
+  const timeAgo = formatDistanceToNow(new Date(article.processed_at), {
     addSuffix: true,
     locale: isArabic ? ar : enUS,
   });

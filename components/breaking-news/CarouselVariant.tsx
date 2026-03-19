@@ -61,7 +61,7 @@ export default function CarouselVariant({ articles }: Props) {
           const summary = isArabic ? article.summary_ar : article.summary_en;
           const categoryLabel = t(`categories.${article.category}`);
           const timeAgo = formatDistanceToNow(
-            new Date(article.published_at),
+            new Date(article.processed_at),
             { addSuffix: true, locale: isArabic ? ar : enUS }
           );
 
