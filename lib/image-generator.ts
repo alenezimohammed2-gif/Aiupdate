@@ -1,7 +1,7 @@
 import { getSupabaseAdmin } from "./supabase";
 import { ArticleCategory } from "./types";
 
-const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
+const DEFAULT_IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
 
 const categoryStyles: Record<ArticleCategory, string> = {
   new_models:
@@ -23,7 +23,8 @@ const categoryStyles: Record<ArticleCategory, string> = {
 export async function generateArticleImage(
   title: string,
   category: string,
-  articleId: string
+  articleId: string,
+  model?: string
 ): Promise<string | null> {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) return null;
@@ -50,7 +51,7 @@ Important: Do NOT include any text, letters, words, or watermarks in the image. 
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: IMAGE_MODEL,
+          model: model || DEFAULT_IMAGE_MODEL,
           messages: [{ role: "user", content: prompt }],
         }),
       }

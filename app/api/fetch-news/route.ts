@@ -4,44 +4,22 @@ import { processAllArticles, setProcessorSettings } from "@/lib/gemini-processor
 import { generateArticleImage } from "@/lib/image-generator";
 import { getSupabaseAdmin } from "@/lib/supabase";
 
-export const maxDuration = 300; // 5 minutes max for Vercel
+export const maxDuration = 300;
 
-function verifyAuth(request: NextRequest): boolean {
-  const cronSecret = process.env.CRON_SECRET;
-  // Vercel Cron sends GET with CRON_SECRET as query param or header
-  const authHeader = request.headers.get("authorization");
-  if (authHeader === `Bearer ${cronSecret}`) return true;
-  // Vercel Cron also checks via x-vercel-cron header (internal)
-  return false;
-}
-
-// GET handler for Vercel Cron (automatic scheduling)
-export async function GET(request: NextRequest) {
-  const cronSecret = process.env.CRON_SECRET;
-  const authHeader = request.headers.get("authorization");
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  return runCronJob();
-}
-
-// POST handler for external cron services and manual triggers
 export async function POST(request: NextRequest) {
-  const cronSecret = process.env.CRON_SECRET;
-  const authHeader = request.headers.get("authorization");
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  // Verify admin password
+  const { password } = await request.json();
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (!adminPassword || password !== adminPassword) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return runCronJob();
-}
-
-async function runCronJob() {
 
   try {
     const startTime = Date.now();
     const supabase = getSupabaseAdmin();
 
-    // Step 0: Load settings
+    // Load settings
     const { data: settingsData } = await supabase
       .from("settings")
       .select("*")
@@ -57,12 +35,10 @@ async function runCronJob() {
       });
     }
 
-    // Step 1: Fetch all RSS feeds
-    console.log("Fetching RSS feeds...");
+    // Fetch all RSS feeds
     const rawItems = await fetchAllFeeds();
-    console.log(`Fetched ${rawItems.length} raw items`);
 
-    // Step 2: Get existing article URLs to avoid reprocessing
+    // Get existing article URLs to avoid reprocessing
     const { data: existingArticles } = await supabase
       .from("articles")
       .select("source_url");
@@ -75,7 +51,6 @@ async function runCronJob() {
     const newItems = rawItems
       .filter((item) => item.url && !existingUrls.has(item.url))
       .slice(0, 20);
-    console.log(`Found ${newItems.length} new items after deduplication (capped at 20)`);
 
     if (newItems.length === 0) {
       const duration = Date.now() - startTime;
@@ -88,27 +63,25 @@ async function runCronJob() {
       });
       return NextResponse.json({
         success: true,
-        message: "No new articles to process",
         stats: { fetched: rawItems.length, new: 0, processed: 0, duration_ms: duration },
+        message: "No new articles found",
       });
     }
 
-    // Step 3: Process with Gemini (filter + classify + summarize + translate)
+    // Process with AI (filter + classify + summarize + translate)
     const processed = await processAllArticles(newItems);
 
-    // Step 4: Save to Supabase
+    // Save to Supabase
     if (processed.length > 0) {
       const { error: insertError } = await supabase
         .from("articles")
         .upsert(processed, { onConflict: "source_url" });
 
-      if (insertError) {
-        console.error("Supabase insert error:", insertError);
-        throw insertError;
-      }
+      if (insertError) throw insertError;
     }
 
-    // Step 5: Generate images for articles without images
+    // Generate images for articles without images
+    let imagesGenerated = 0;
     const { data: noImageArticles } = await supabase
       .from("articles")
       .select("id, title_en, category, image_url")
@@ -128,23 +101,20 @@ async function runCronJob() {
             .from("articles")
             .update({ image_url: imageUrl })
             .eq("id", article.id);
+          imagesGenerated++;
         }
       }
     }
 
-    // Step 6: Clean up old articles (older than 30 days)
+    // Clean up old articles (older than 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
     await supabase
       .from("articles")
       .delete()
       .lt("published_at", thirtyDaysAgo.toISOString());
 
     const duration = Date.now() - startTime;
-    console.log(
-      `Cron job completed: ${processed.length} articles in ${duration}ms`
-    );
 
     // Save log
     await supabase.from("cron_logs").insert({
@@ -161,13 +131,11 @@ async function runCronJob() {
         fetched: rawItems.length,
         new: newItems.length,
         processed: processed.length,
+        imagesGenerated,
         duration_ms: duration,
       },
     });
   } catch (error) {
-    console.error("Cron job failed:", error);
-
-    // Save error log
     try {
       const supabase = getSupabaseAdmin();
       await supabase.from("cron_logs").insert({
@@ -179,10 +147,7 @@ async function runCronJob() {
     }
 
     return NextResponse.json(
-      {
-        error: "Internal server error",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
+      { error: error instanceof Error ? error.message : "Fetch failed" },
       { status: 500 }
     );
   }

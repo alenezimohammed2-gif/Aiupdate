@@ -6,8 +6,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import {
   MODEL_OPTIONS,
+  IMAGE_MODEL_OPTIONS,
   DEFAULT_SETTINGS,
   ModelOption,
+  ImageModelOption,
 } from "@/lib/settings-types";
 import {
   Settings,
@@ -22,6 +24,8 @@ import {
   Save,
   Lock,
   History,
+  RefreshCw,
+  CheckCircle,
 } from "lucide-react";
 
 const DEFAULT_INSTRUCTIONS_INCLUDE = `1. New AI model releases and major version updates (LLMs, image generation, video generation, audio, multimodal models)
@@ -59,6 +63,9 @@ export default function SettingsPage() {
   // State
   const [selectedModel, setSelectedModel] = useState<ModelOption>(
     DEFAULT_SETTINGS.selected_model
+  );
+  const [selectedImageModel, setSelectedImageModel] = useState<ImageModelOption>(
+    DEFAULT_SETTINGS.selected_image_model
   );
   const [instructionsInclude, setInstructionsInclude] = useState(DEFAULT_INSTRUCTIONS_INCLUDE);
   const [instructionsExclude, setInstructionsExclude] = useState(DEFAULT_INSTRUCTIONS_EXCLUDE);
@@ -106,6 +113,19 @@ export default function SettingsPage() {
     structured: boolean;
   } | null>(null);
 
+  // Manual fetch state
+  const [fetchStatus, setFetchStatus] = useState<
+    "idle" | "fetching" | "success" | "error"
+  >("idle");
+  const [fetchResult, setFetchResult] = useState<{
+    fetched: number;
+    new: number;
+    processed: number;
+    imagesGenerated?: number;
+    duration_ms: number;
+    message?: string;
+  } | null>(null);
+
   // Cron logs state
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [cronLogs, setCronLogs] = useState<any[]>([]);
@@ -117,6 +137,7 @@ export default function SettingsPage() {
       .then((r) => r.json())
       .then((data) => {
         if (data.selected_model) setSelectedModel(data.selected_model);
+        if (data.selected_image_model) setSelectedImageModel(data.selected_image_model);
         if (data.custom_instructions_include)
           setInstructionsInclude(data.custom_instructions_include);
         if (data.custom_instructions_exclude)
@@ -135,6 +156,7 @@ export default function SettingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           selected_model: selectedModel,
+          selected_image_model: selectedImageModel,
           keywords: [],
           custom_instructions_include: instructionsInclude,
           custom_instructions_exclude: instructionsExclude,
@@ -239,6 +261,30 @@ export default function SettingsPage() {
     setLogsLoading(false);
   };
 
+  // Manual fetch news
+  const fetchNewsNow = async () => {
+    setFetchStatus("fetching");
+    setFetchResult(null);
+    try {
+      const res = await fetch("/api/fetch-news", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: passwordInput }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setFetchStatus("success");
+        setFetchResult(data.stats || null);
+      } else {
+        setFetchStatus("error");
+        setFetchResult(null);
+      }
+    } catch {
+      setFetchStatus("error");
+      setFetchResult(null);
+    }
+  };
+
   const modelInfo = MODEL_OPTIONS.find((m) => m.id === selectedModel);
 
   // Login screen
@@ -302,8 +348,13 @@ export default function SettingsPage() {
           <section className="border border-border/30 rounded-2xl p-5 bg-card">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Cpu className="w-5 h-5 text-primary" />
-              {isArabic ? "النموذج المستخدم" : "AI Model"}
+              {isArabic ? "نموذج معالجة الأخبار" : "News Processing Model"}
             </h2>
+            <p className="text-sm text-muted-foreground mb-3">
+              {isArabic
+                ? "النموذج المستخدم لفلترة وتصنيف وتلخيص وترجمة الأخبار."
+                : "Model used to filter, classify, summarize, and translate news."}
+            </p>
 
             <div className="space-y-3">
               {MODEL_OPTIONS.map((model) => (
@@ -321,6 +372,47 @@ export default function SettingsPage() {
                     value={model.id}
                     checked={selectedModel === model.id}
                     onChange={() => setSelectedModel(model.id)}
+                    className="accent-primary"
+                  />
+                  <div>
+                    <div className="font-medium">{model.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {model.provider} — {model.id}
+                    </div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </section>
+
+          {/* Section 1b: Image Model Selection */}
+          <section className="border border-border/30 rounded-2xl p-5 bg-card">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Cpu className="w-5 h-5 text-primary" />
+              {isArabic ? "نموذج توليد صور المقالات" : "Article Image Generation Model"}
+            </h2>
+            <p className="text-sm text-muted-foreground mb-3">
+              {isArabic
+                ? "النموذج المستخدم لتوليد صور للمقالات التي لا تحتوي على صور من المصدر."
+                : "Model used to generate images for articles without source images."}
+            </p>
+
+            <div className="space-y-3">
+              {IMAGE_MODEL_OPTIONS.map((model) => (
+                <label
+                  key={model.id}
+                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                    selectedImageModel === model.id
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:bg-muted"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="imageModel"
+                    value={model.id}
+                    checked={selectedImageModel === model.id}
+                    onChange={() => setSelectedImageModel(model.id as ImageModelOption)}
                     className="accent-primary"
                   />
                   <div>
@@ -559,7 +651,84 @@ export default function SettingsPage() {
             )}
           </section>
 
-          {/* Section 5: Cron Logs */}
+          {/* Section 5: Manual Fetch */}
+          <section className="border border-border/30 rounded-2xl p-5 bg-card">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <RefreshCw className="w-5 h-5 text-primary" />
+              {isArabic ? "تحديث الأخبار" : "Fetch News"}
+            </h2>
+            <p className="text-sm text-muted-foreground mb-3">
+              {isArabic
+                ? "جلب الأخبار من المصادر وفلترتها وترجمتها يدوياً. يتم أيضاً تحديث تلقائي يومياً."
+                : "Manually fetch, filter, and translate news from RSS sources. Also runs automatically once daily."}
+            </p>
+
+            <button
+              onClick={fetchNewsNow}
+              disabled={fetchStatus === "fetching"}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {fetchStatus === "fetching" ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              {fetchStatus === "fetching"
+                ? isArabic ? "جاري التحديث..." : "Fetching..."
+                : isArabic ? "تحديث الأخبار الآن" : "Fetch News Now"}
+            </button>
+
+            {fetchStatus === "success" && fetchResult && (
+              <div className="mt-4 p-4 rounded-lg border border-green-500/30 bg-green-500/5">
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  <span className="text-sm font-medium text-green-400">
+                    {isArabic ? "تم التحديث بنجاح" : "Update successful"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">{isArabic ? "جلب:" : "Fetched:"}</span>
+                    <span className="font-medium ms-1">{fetchResult.fetched}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">{isArabic ? "جديد:" : "New:"}</span>
+                    <span className="font-medium ms-1">{fetchResult.new}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">{isArabic ? "معالج:" : "Processed:"}</span>
+                    <span className="font-medium ms-1">{fetchResult.processed}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">{isArabic ? "صور:" : "Images:"}</span>
+                    <span className="font-medium ms-1">{fetchResult.imagesGenerated ?? 0}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">{isArabic ? "المدة:" : "Duration:"}</span>
+                    <span className="font-medium ms-1">{(fetchResult.duration_ms / 1000).toFixed(1)}s</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {fetchStatus === "success" && !fetchResult && (
+              <div className="mt-4 p-4 rounded-lg border border-yellow-500/30 bg-yellow-500/5">
+                <span className="text-sm text-yellow-400">
+                  {isArabic ? "لا توجد أخبار جديدة للمعالجة" : "No new articles to process"}
+                </span>
+              </div>
+            )}
+
+            {fetchStatus === "error" && (
+              <div className="mt-4 p-4 rounded-lg border border-red-500/30 bg-red-500/5">
+                <span className="text-sm text-red-400">
+                  {isArabic ? "فشل التحديث — تحقق من الاتصال" : "Update failed — check connection"}
+                </span>
+              </div>
+            )}
+          </section>
+
+          {/* Section 6: Cron Logs */}
           <section className="border border-border/30 rounded-2xl p-5 bg-card">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <History className="w-5 h-5 text-primary" />
