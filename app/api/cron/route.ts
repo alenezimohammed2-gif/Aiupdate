@@ -22,20 +22,20 @@ export async function GET(request: NextRequest) {
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return runCronJob();
+  return runCronJob("vercel_cron");
 }
 
-// POST handler for external cron services and manual triggers
+// POST handler for GitHub Actions and external services
 export async function POST(request: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
   const authHeader = request.headers.get("authorization");
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return runCronJob();
+  return runCronJob("github_actions");
 }
 
-async function runCronJob() {
+async function runCronJob(triggeredBy: string = "unknown") {
 
   try {
     const startTime = Date.now();
@@ -101,6 +101,7 @@ async function runCronJob() {
         processed: 0,
         duration_ms: duration,
         status: "success",
+        triggered_by: triggeredBy,
       });
       return NextResponse.json({
         success: true,
@@ -169,6 +170,7 @@ async function runCronJob() {
       processed: processed.length,
       duration_ms: duration,
       status: "success",
+      triggered_by: triggeredBy,
     });
 
     return NextResponse.json({
@@ -189,6 +191,7 @@ async function runCronJob() {
       await supabase.from("cron_logs").insert({
         status: "error",
         error_message: error instanceof Error ? error.message : "Unknown error",
+        triggered_by: triggeredBy,
       });
     } catch {
       // ignore log save errors

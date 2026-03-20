@@ -76,6 +76,7 @@ export async function POST(request: NextRequest) {
         processed: 0,
         duration_ms: duration,
         status: "success",
+        triggered_by: "manual",
       });
       return NextResponse.json({
         success: true,
@@ -157,6 +158,7 @@ export async function POST(request: NextRequest) {
       await supabase.from("cron_logs").insert({
         status: "error",
         error_message: error instanceof Error ? error.message : "Unknown error",
+        triggered_by: "manual",
       });
     } catch {
       // ignore log save errors

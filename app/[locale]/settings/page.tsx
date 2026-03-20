@@ -819,9 +819,30 @@ export default function SettingsPage() {
                       <span className={`font-medium ${log.status === "success" ? "text-green-400" : "text-red-400"}`}>
                         {log.status === "success" ? "✅" : "❌"} {log.status}
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(log.ran_at).toLocaleString(isArabic ? "ar" : "en")}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {log.triggered_by && (
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                            log.triggered_by === "manual"
+                              ? "bg-blue-500/10 text-blue-400 border border-blue-500/30"
+                              : log.triggered_by === "github_actions"
+                                ? "bg-purple-500/10 text-purple-400 border border-purple-500/30"
+                                : log.triggered_by === "vercel_cron"
+                                  ? "bg-orange-500/10 text-orange-400 border border-orange-500/30"
+                                  : "bg-muted text-muted-foreground"
+                          }`}>
+                            {log.triggered_by === "manual"
+                              ? (isArabic ? "يدوي" : "Manual")
+                              : log.triggered_by === "github_actions"
+                                ? "GitHub Actions"
+                                : log.triggered_by === "vercel_cron"
+                                  ? "Vercel Cron"
+                                  : log.triggered_by}
+                          </span>
+                        )}
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(log.ran_at).toLocaleString(isArabic ? "ar" : "en")}
+                        </span>
+                      </div>
                     </div>
                     {log.status === "success" ? (
                       <div className="text-xs text-muted-foreground flex gap-4 flex-wrap">
