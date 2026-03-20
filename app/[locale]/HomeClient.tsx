@@ -215,22 +215,32 @@ export default function HomeClient({ articles }: HomeClientProps) {
                   <ChevronRight className="w-4 h-4" />
                 )}
               </button>
+
+              <a
+                href={`/${locale}/archive`}
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-primary/50 text-primary hover:bg-primary/10 transition-all text-sm font-medium"
+              >
+                {isArabic ? "الأرشيف" : "Archive"}
+              </a>
             </div>
           )}
         </div>
       </section>
 
-      {/* Big Typography Section */}
-      <section className="py-32 px-6">
-        <div className="max-w-5xl mx-auto flex items-center justify-center gap-5">
-          <AnimatedLogo size={70} className="text-primary" />
-          <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-none text-shine">
-            AI Pulse
-          </h2>
+      {/* Footer with Logo */}
+      <footer className="border-t border-border/20 py-8">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <div className="flex items-center justify-center gap-3 mb-3" dir="rtl">
+            <AnimatedLogo size={40} className="text-primary" />
+            <span className="text-2xl md:text-3xl font-bold tracking-tighter text-shine">
+              AI Pulse
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground/60 uppercase tracking-widest">
+            {t("site.name")} — {t("footer.description")}
+          </p>
         </div>
-      </section>
-
-      <Footer />
+      </footer>
     </div>
   );
 }

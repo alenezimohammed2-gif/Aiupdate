@@ -1,10 +1,10 @@
 import { getSupabase } from "@/lib/supabase";
 import { ProcessedArticle } from "@/lib/types";
-import HomeClient from "./HomeClient";
+import ArchiveClient from "./ArchiveClient";
 
-export const revalidate = 21600; // ISR: revalidate every 6 hours
+export const revalidate = 21600;
 
-async function getArticles(): Promise<ProcessedArticle[]> {
+async function getArchivedArticles(): Promise<ProcessedArticle[]> {
   try {
     const supabase = getSupabase();
 
@@ -14,23 +14,22 @@ async function getArticles(): Promise<ProcessedArticle[]> {
     const { data, error } = await supabase
       .from("articles")
       .select("*")
-      .gte("processed_at", threeDaysAgo.toISOString())
+      .lt("processed_at", threeDaysAgo.toISOString())
       .order("processed_at", { ascending: false });
 
     if (error) {
-      console.error("Failed to fetch articles:", error);
+      console.error("Failed to fetch archived articles:", error);
       return [];
     }
 
     return (data as ProcessedArticle[]) || [];
   } catch {
-    // During build time, env vars may not be available
     return [];
   }
 }
 
-export default async function HomePage() {
-  const articles = await getArticles();
+export default async function ArchivePage() {
+  const articles = await getArchivedArticles();
 
-  return <HomeClient articles={articles} />;
+  return <ArchiveClient articles={articles} />;
 }

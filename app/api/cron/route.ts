@@ -86,10 +86,18 @@ async function runCronJob(triggeredBy: string = "unknown") {
       return false;
     }
 
-    // Filter out already-processed articles AND topic duplicates, limit to 50
+    // Only accept articles published within the last 3 days
+    const publishCutoff = new Date();
+    publishCutoff.setDate(publishCutoff.getDate() - 3);
+
+    // Filter out: existing URLs, topic duplicates, and old articles
     const newItems = rawItems
       .filter((item) => item.url && !existingUrls.has(item.url))
       .filter((item) => !isSimilarToExisting(item.title))
+      .filter((item) => {
+        if (!item.published) return true;
+        return new Date(item.published) >= publishCutoff;
+      })
       .slice(0, 50);
     console.log(`Found ${newItems.length} new items after deduplication (capped at 50)`);
 
@@ -99,6 +107,7 @@ async function runCronJob(triggeredBy: string = "unknown") {
         fetched: rawItems.length,
         new_items: 0,
         processed: 0,
+        images_generated: 0,
         duration_ms: duration,
         status: "success",
         triggered_by: triggeredBy,
@@ -131,6 +140,7 @@ async function runCronJob(triggeredBy: string = "unknown") {
       .select("id, title_en, category, image_url")
       .or("image_url.is.null,image_url.eq.");
 
+    let imagesGenerated = 0;
     const imageModel = settingsData?.selected_image_model || undefined;
     if (noImageArticles && noImageArticles.length > 0) {
       for (const article of noImageArticles) {
@@ -145,6 +155,7 @@ async function runCronJob(triggeredBy: string = "unknown") {
             .from("articles")
             .update({ image_url: imageUrl })
             .eq("id", article.id);
+          imagesGenerated++;
         }
       }
     }
@@ -168,6 +179,7 @@ async function runCronJob(triggeredBy: string = "unknown") {
       fetched: rawItems.length,
       new_items: newItems.length,
       processed: processed.length,
+      images_generated: imagesGenerated,
       duration_ms: duration,
       status: "success",
       triggered_by: triggeredBy,

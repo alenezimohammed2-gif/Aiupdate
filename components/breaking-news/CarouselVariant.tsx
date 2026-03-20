@@ -50,6 +50,7 @@ export default function CarouselVariant({ articles }: Props) {
   const translateValue = isArabic ? current * 100 : -(current * 100);
 
   return (
+    <>
     <div className="relative overflow-hidden rounded-2xl bg-card border border-border/30">
       {/* Slides track */}
       <div
@@ -134,8 +135,10 @@ export default function CarouselVariant({ articles }: Props) {
         )}
       </button>
 
-      {/* Dots */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+    </div>
+
+      {/* Dots - outside the card */}
+      <div className="flex justify-center gap-2 mt-4">
         {articles.map((_, i) => (
           <button
             key={i}
@@ -149,6 +152,6 @@ export default function CarouselVariant({ articles }: Props) {
           />
         ))}
       </div>
-    </div>
+    </>
   );
 }

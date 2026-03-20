@@ -62,10 +62,18 @@ export async function POST(request: NextRequest) {
       return false;
     }
 
-    // Filter out already-processed articles AND topic duplicates, limit to 50
+    // Only accept articles published within the last 3 days
+    const publishCutoff = new Date();
+    publishCutoff.setDate(publishCutoff.getDate() - 3);
+
+    // Filter out: existing URLs, topic duplicates, and old articles
     const newItems = rawItems
       .filter((item) => item.url && !existingUrls.has(item.url))
       .filter((item) => !isSimilarToExisting(item.title))
+      .filter((item) => {
+        if (!item.published) return true;
+        return new Date(item.published) >= publishCutoff;
+      })
       .slice(0, 50);
 
     if (newItems.length === 0) {
@@ -74,6 +82,7 @@ export async function POST(request: NextRequest) {
         fetched: rawItems.length,
         new_items: 0,
         processed: 0,
+        images_generated: 0,
         duration_ms: duration,
         status: "success",
         triggered_by: "manual",
@@ -138,6 +147,7 @@ export async function POST(request: NextRequest) {
       fetched: rawItems.length,
       new_items: newItems.length,
       processed: processed.length,
+      images_generated: imagesGenerated,
       duration_ms: duration,
       status: "success",
       triggered_by: "manual",
