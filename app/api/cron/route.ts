@@ -62,18 +62,34 @@ async function runCronJob() {
     const rawItems = await fetchAllFeeds();
     console.log(`Fetched ${rawItems.length} raw items`);
 
-    // Step 2: Get existing article URLs to avoid reprocessing
+    // Step 2: Get existing articles to avoid reprocessing and detect topic duplicates
     const { data: existingArticles } = await supabase
       .from("articles")
-      .select("source_url");
+      .select("source_url, title_en");
 
     const existingUrls = new Set(
       (existingArticles || []).map((a) => a.source_url)
     );
 
-    // Filter out already-processed articles and limit to newest 20
+    // Extract key words from existing titles for topic duplicate detection
+    const existingTitleKeys = (existingArticles || []).map((a) =>
+      a.title_en.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter((w: string) => w.length > 3)
+    );
+
+    function isSimilarToExisting(title: string): boolean {
+      const words = title.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(w => w.length > 3);
+      for (const existingWords of existingTitleKeys) {
+        const common = words.filter(w => existingWords.includes(w));
+        const similarity = common.length / Math.max(words.length, existingWords.length);
+        if (similarity > 0.5) return true;
+      }
+      return false;
+    }
+
+    // Filter out already-processed articles AND topic duplicates, limit to 50
     const newItems = rawItems
       .filter((item) => item.url && !existingUrls.has(item.url))
+      .filter((item) => !isSimilarToExisting(item.title))
       .slice(0, 50);
     console.log(`Found ${newItems.length} new items after deduplication (capped at 50)`);
 
