@@ -140,6 +140,7 @@ export async function POST(request: NextRequest) {
       processed: processed.length,
       duration_ms: duration,
       status: "success",
+      triggered_by: "manual",
     });
 
     return NextResponse.json({
