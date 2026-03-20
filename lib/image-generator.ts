@@ -1,7 +1,7 @@
 import { getSupabaseAdmin } from "./supabase";
 import { ArticleCategory } from "./types";
 
-const DEFAULT_IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
+const DEFAULT_IMAGE_MODEL = "google/gemini-3-pro-image-preview";
 
 const categoryStyles: Record<ArticleCategory, string> = {
   new_models:

@@ -14,8 +14,8 @@ export type ModelOption =
   | "anthropic/claude-sonnet-4.6";
 
 export type ImageModelOption =
-  | "google/gemini-3.1-flash-image-preview"
-  | "google/gemini-3.1-pro-image-preview";
+  | "google/gemini-3-pro-image-preview"
+  | "google/gemini-3.1-flash-image-preview";
 
 export const MODEL_OPTIONS: {
   id: ModelOption;
@@ -45,12 +45,12 @@ export const IMAGE_MODEL_OPTIONS: {
   provider: string;
 }[] = [
   {
-    id: "google/gemini-3.1-flash-image-preview",
+    id: "google/gemini-3-pro-image-preview",
     name: "Nano Banana Pro",
     provider: "Google",
   },
   {
-    id: "google/gemini-3.1-pro-image-preview",
+    id: "google/gemini-3.1-flash-image-preview",
     name: "Nano Banana 2",
     provider: "Google",
   },
@@ -58,7 +58,7 @@ export const IMAGE_MODEL_OPTIONS: {
 
 export const DEFAULT_SETTINGS: Omit<AppSettings, "id" | "updated_at"> = {
   selected_model: "google/gemini-3-flash-preview",
-  selected_image_model: "google/gemini-3.1-flash-image-preview",
+  selected_image_model: "google/gemini-3-pro-image-preview",
   keywords: [],
   custom_instructions_include: "",
   custom_instructions_exclude: "",

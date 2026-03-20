@@ -93,12 +93,19 @@ export default function SettingsPage() {
     setAuthLoading(false);
   };
 
-  // Connection test state
+  // Connection test state - news model
   const [connectionStatus, setConnectionStatus] = useState<
     "idle" | "testing" | "success" | "error"
   >("idle");
   const [connectionMessage, setConnectionMessage] = useState("");
   const [connectionLatency, setConnectionLatency] = useState<number | null>(null);
+
+  // Connection test state - image model
+  const [imgConnectionStatus, setImgConnectionStatus] = useState<
+    "idle" | "testing" | "success" | "error"
+  >("idle");
+  const [imgConnectionMessage, setImgConnectionMessage] = useState("");
+  const [imgConnectionLatency, setImgConnectionLatency] = useState<number | null>(null);
 
   // Instructions test state
   const [testStatus, setTestStatus] = useState<
@@ -201,6 +208,38 @@ export default function SettingsPage() {
     } catch {
       setConnectionStatus("error");
       setConnectionMessage(
+        isArabic ? "فشل الاتصال بالسيرفر" : "Server connection failed"
+      );
+    }
+  };
+
+  // Test image model connection
+  const testImageConnection = async () => {
+    setImgConnectionStatus("testing");
+    setImgConnectionMessage("");
+    setImgConnectionLatency(null);
+    try {
+      const res = await fetch("/api/test-connection", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: selectedImageModel }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setImgConnectionStatus("success");
+        setImgConnectionLatency(data.latency_ms);
+        setImgConnectionMessage(
+          isArabic
+            ? `الاتصال ناجح (${data.latency_ms}ms)`
+            : data.message
+        );
+      } else {
+        setImgConnectionStatus("error");
+        setImgConnectionMessage(data.message);
+      }
+    } catch {
+      setImgConnectionStatus("error");
+      setImgConnectionMessage(
         isArabic ? "فشل الاتصال بالسيرفر" : "Server connection failed"
       );
     }
@@ -383,6 +422,41 @@ export default function SettingsPage() {
                 </label>
               ))}
             </div>
+
+            <button
+              onClick={testConnection}
+              disabled={connectionStatus === "testing"}
+              className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {connectionStatus === "testing" ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Wifi className="w-4 h-4" />
+              )}
+              {isArabic ? "فحص نماذج معالجة الأخبار" : "Test News Model"}
+            </button>
+
+            {connectionMessage && (
+              <div
+                className={`mt-3 p-3 rounded-lg flex items-center gap-2 text-sm ${
+                  connectionStatus === "success"
+                    ? "bg-green-500/10 text-green-400 border border-green-500/30"
+                    : "bg-red-500/10 text-red-400 border border-red-500/30"
+                }`}
+              >
+                {connectionStatus === "success" ? (
+                  <CheckCircle className="w-4 h-4" />
+                ) : (
+                  <XCircle className="w-4 h-4" />
+                )}
+                {connectionMessage}
+                {connectionLatency && (
+                  <span className="ms-auto text-xs opacity-70">
+                    {connectionLatency}ms
+                  </span>
+                )}
+              </div>
+            )}
           </section>
 
           {/* Section 1b: Image Model Selection */}
@@ -424,60 +498,37 @@ export default function SettingsPage() {
                 </label>
               ))}
             </div>
-          </section>
-
-          {/* Section 2: Connection Status */}
-          <section className="border border-border/30 rounded-2xl p-5 bg-card">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              {connectionStatus === "success" ? (
-                <Wifi className="w-5 h-5 text-green-500" />
-              ) : connectionStatus === "error" ? (
-                <WifiOff className="w-5 h-5 text-red-500" />
-              ) : (
-                <Wifi className="w-5 h-5 text-primary" />
-              )}
-              {isArabic ? "حالة الاتصال" : "Connection Status"}
-            </h2>
-
-            <div className="flex items-center gap-3 mb-3">
-              <div className="text-sm text-muted-foreground">
-                {isArabic ? "النموذج:" : "Model:"}{" "}
-                <span className="font-medium text-foreground">
-                  {modelInfo?.name}
-                </span>
-              </div>
-            </div>
 
             <button
-              onClick={testConnection}
-              disabled={connectionStatus === "testing"}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center gap-2"
+              onClick={testImageConnection}
+              disabled={imgConnectionStatus === "testing"}
+              className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-              {connectionStatus === "testing" ? (
+              {imgConnectionStatus === "testing" ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <Wifi className="w-4 h-4" />
               )}
-              {isArabic ? "اختبار الاتصال" : "Test Connection"}
+              {isArabic ? "فحص نموذج توليد الصور" : "Test Image Model"}
             </button>
 
-            {connectionMessage && (
+            {imgConnectionMessage && (
               <div
                 className={`mt-3 p-3 rounded-lg flex items-center gap-2 text-sm ${
-                  connectionStatus === "success"
+                  imgConnectionStatus === "success"
                     ? "bg-green-500/10 text-green-400 border border-green-500/30"
                     : "bg-red-500/10 text-red-400 border border-red-500/30"
                 }`}
               >
-                {connectionStatus === "success" ? (
-                  <CheckCircle2 className="w-4 h-4" />
+                {imgConnectionStatus === "success" ? (
+                  <CheckCircle className="w-4 h-4" />
                 ) : (
                   <XCircle className="w-4 h-4" />
                 )}
-                {connectionMessage}
-                {connectionLatency && (
+                {imgConnectionMessage}
+                {imgConnectionLatency && (
                   <span className="ms-auto text-xs opacity-70">
-                    {connectionLatency}ms
+                    {imgConnectionLatency}ms
                   </span>
                 )}
               </div>
