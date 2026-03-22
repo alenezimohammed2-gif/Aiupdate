@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAllFeeds } from "@/lib/rss-fetcher";
 import { processAllArticles, setProcessorSettings } from "@/lib/gemini-processor";
-import { generateArticleImage } from "@/lib/image-generator";
+import { getArticleImage } from "@/lib/image-generator";
 import { getSupabaseAdmin } from "@/lib/supabase";
 
 export const maxDuration = 300; // 5 minutes max for Vercel
@@ -138,17 +138,18 @@ async function runCronJob(triggeredBy: string = "unknown") {
     // Step 5: Generate images for articles without images
     const { data: noImageArticles } = await supabase
       .from("articles")
-      .select("id, title_en, category, image_url, image_prompt, image_style, image_colors")
+      .select("id, title_en, category, image_url, image_prompt, image_style, image_colors, source_url")
       .or("image_url.is.null,image_url.eq.");
 
     let imagesGenerated = 0;
     const imageModel = settingsData?.selected_image_model || undefined;
     if (noImageArticles && noImageArticles.length > 0) {
       for (const article of noImageArticles) {
-        const imageUrl = await generateArticleImage(
+        const imageUrl = await getArticleImage(
           article.title_en,
           article.category,
           article.id,
+          article.source_url,
           imageModel,
           article.image_prompt,
           article.image_style,

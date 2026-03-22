@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
-import { generateArticleImage } from "@/lib/image-generator";
+import { getArticleImage } from "@/lib/image-generator";
 
 export const maxDuration = 300;
 
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     // Get articles without images
     const { data: articles } = await supabase
       .from("articles")
-      .select("id, title_en, category, image_url")
+      .select("id, title_en, category, image_url, source_url, image_prompt, image_style, image_colors")
       .or("image_url.is.null,image_url.eq.");
 
     if (!articles || articles.length === 0) {
@@ -27,10 +27,15 @@ export async function POST(request: NextRequest) {
 
     let generated = 0;
     for (const article of articles) {
-      const imageUrl = await generateArticleImage(
+      const imageUrl = await getArticleImage(
         article.title_en,
         article.category,
-        article.id
+        article.id,
+        article.source_url,
+        undefined,
+        article.image_prompt,
+        article.image_style,
+        article.image_colors
       );
       if (imageUrl) {
         await supabase
@@ -38,7 +43,7 @@ export async function POST(request: NextRequest) {
           .update({ image_url: imageUrl })
           .eq("id", article.id);
         generated++;
-        console.log(`Generated image ${generated}/${articles.length}: ${article.title_en.slice(0, 50)}`);
+        console.log(`Image ${generated}/${articles.length}: ${article.title_en.slice(0, 50)}`);
       }
     }
 
