@@ -95,7 +95,7 @@ async function runCronJob(triggeredBy: string = "unknown") {
       .filter((item) => item.url && !existingUrls.has(item.url))
       .filter((item) => !isSimilarToExisting(item.title))
       .filter((item) => {
-        if (!item.published) return true;
+        if (!item.published) return false;
         return new Date(item.published) >= publishCutoff;
       })
       .slice(0, 50);
