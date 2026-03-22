@@ -85,26 +85,29 @@ export async function extractSourceImage(
       return null;
     }
 
-    console.log(`[Image Extract] Found og:image: ${ogImage.slice(0, 100)}`);
+    // Decode HTML entities (e.g. &amp; → &, &#39; → ', etc.)
+    const decodedImage = ogImage.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+
+    console.log(`[Image Extract] Found og:image: ${decodedImage.slice(0, 100)}`);
 
     // Validate: must be a full URL
-    if (!ogImage.startsWith("http")) {
+    if (!decodedImage.startsWith("http")) {
       console.log(`[Image Extract] REJECTED - not a full URL: ${ogImage.slice(0, 60)}`);
       return null;
     }
 
     // Check against blocked keywords
-    const urlLower = ogImage.toLowerCase();
+    const urlLower = decodedImage.toLowerCase();
     for (const keyword of BLOCKED_KEYWORDS) {
       if (urlLower.includes(keyword)) {
-        console.log(`[Image Extract] REJECTED - blocked keyword "${keyword}" in: ${ogImage.slice(0, 80)}`);
+        console.log(`[Image Extract] REJECTED - blocked keyword "${keyword}" in: ${decodedImage.slice(0, 80)}`);
         return null;
       }
     }
 
     // Check: image must be from same domain or known CDN (not third-party ads)
     const sourceHost = new URL(sourceUrl).hostname.replace("www.", "");
-    const imageHost = new URL(ogImage).hostname.replace("www.", "");
+    const imageHost = new URL(decodedImage).hostname.replace("www.", "");
     const isKnownCDN = KNOWN_CDNS.some((cdn) => imageHost.includes(cdn));
 
     if (!imageHost.includes(sourceHost.split(".").slice(-2).join(".")) && !isKnownCDN) {
@@ -112,8 +115,8 @@ export async function extractSourceImage(
       return null;
     }
 
-    console.log(`[Image Extract] SUCCESS - extracted from ${imageHost}: ${ogImage.slice(0, 80)}`);
-    return ogImage;
+    console.log(`[Image Extract] SUCCESS - extracted from ${imageHost}: ${decodedImage.slice(0, 80)}`);
+    return decodedImage;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.log(`[Image Extract] ERROR for ${sourceUrl}: ${message}`);
