@@ -88,7 +88,7 @@ export async function filterArticles(
       description: item.description.slice(0, 200),
     }));
 
-    let prompt = `You are an AI news editor. From the following articles, select ONLY relevant ones.\n\n`;
+    let prompt = `You are an AI news editor for an AI-focused news site. Your job is to select articles that would interest AI professionals and enthusiasts.\n\n`;
 
     if (CUSTOM_INSTRUCTIONS_INCLUDE) {
       prompt += `INCLUDE articles about: ${CUSTOM_INSTRUCTIONS_INCLUDE}\n`;
@@ -97,14 +97,16 @@ export async function filterArticles(
     }
 
     if (CUSTOM_INSTRUCTIONS_EXCLUDE) {
-      prompt += `\nEXCLUDE articles about: ${CUSTOM_INSTRUCTIONS_EXCLUDE}\n`;
+      prompt += `\nEXCLUDE ONLY articles that are clearly: ${CUSTOM_INSTRUCTIONS_EXCLUDE}\n`;
     } else {
-      prompt += `\nEXCLUDE: Pure opinion pieces, marketing announcements, general tutorials, non-AI topics.\n`;
+      prompt += `\nEXCLUDE ONLY articles that are clearly: Pure opinion pieces, marketing announcements, general tutorials, non-AI topics.\n`;
     }
 
     if (FILTER_KEYWORDS.length > 0) {
       prompt += `\nPRIORITY KEYWORDS (must match at least one): ${FILTER_KEYWORDS.join(", ")}\n`;
     }
+
+    prompt += `\nIMPORTANT RULES:\n- When in doubt, INCLUDE the article. It is better to include a borderline article than to miss important news.\n- Articles about AI investments, funding rounds, and business deals ARE relevant even if they mention dollar amounts.\n- Articles about AI product launches and updates ARE relevant even if they seem promotional.\n- Articles about government decisions affecting AI companies ARE relevant.\n- Only exclude an article if it clearly has NO connection to AI developments.\n`;
 
     prompt += `\nArticles:\n${JSON.stringify(articlesForPrompt, null, 2)}\n\nReturn ONLY a JSON array of the idx numbers of accepted articles. Example: [0, 2, 5]`;
 
