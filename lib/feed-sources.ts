@@ -3,18 +3,8 @@ import { FeedSource } from "./types";
 export const feedSources: FeedSource[] = [
   // --- AI Labs (Highest Priority) ---
   {
-    name: "OpenAI Blog",
-    url: "https://openai.com/blog/rss/",
-    category: "ai_lab",
-  },
-  {
     name: "OpenAI News",
     url: "https://openai.com/news/rss.xml",
-    category: "ai_lab",
-  },
-  {
-    name: "Anthropic Blog",
-    url: "https://www.anthropic.com/feed.xml",
     category: "ai_lab",
   },
   {
@@ -28,23 +18,28 @@ export const feedSources: FeedSource[] = [
     category: "ai_lab",
   },
   {
-    name: "Meta AI Blog",
-    url: "https://ai.meta.com/blog/rss/",
-    category: "ai_lab",
-  },
-  {
-    name: "Microsoft AI Blog",
-    url: "https://news.microsoft.com/source/topic/ai/feed/",
+    name: "Google Research",
+    url: "https://research.google/blog/rss/",
     category: "ai_lab",
   },
   {
     name: "Google Developers Blog",
-    url: "https://developers.googleblog.com/feeds/posts/default/-/ai?alt=rss",
+    url: "https://developers.googleblog.com/atom.xml",
     category: "ai_lab",
   },
   {
-    name: "Stability AI",
-    url: "https://stability.ai/blog?format=rss",
+    name: "Microsoft AI Blog",
+    url: "https://www.microsoft.com/en-us/ai/blog/feed/",
+    category: "ai_lab",
+  },
+  {
+    name: "Microsoft Research",
+    url: "https://www.microsoft.com/en-us/research/feed/",
+    category: "ai_lab",
+  },
+  {
+    name: "Stability AI Research",
+    url: "https://stability.ai/research?format=rss",
     category: "ai_lab",
   },
 
