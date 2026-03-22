@@ -77,9 +77,9 @@ export const feedSources: FeedSource[] = [
     category: "ai_lab",
   },
   {
-    name: "AWS AI Blog",
-    url: "https://aws.amazon.com/blogs/machine-learning/feed/",
-    category: "ai_lab",
+    name: "ZDNet AI",
+    url: "https://www.zdnet.com/topic/artificial-intelligence/rss.xml",
+    category: "tech_news",
   },
 
   // --- Community & Research (Medium Priority) ---
