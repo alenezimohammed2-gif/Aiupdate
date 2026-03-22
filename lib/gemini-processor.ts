@@ -71,6 +71,49 @@ function extractJSON(text: string): string {
   return text.trim();
 }
 
+// Step 0: AI-powered duplicate detection — check if articles cover same events as existing ones
+export async function deduplicateByMeaning(
+  items: RawFeedItem[],
+  existingTitles: string[]
+): Promise<RawFeedItem[]> {
+  if (items.length === 0 || existingTitles.length === 0) return items;
+
+  try {
+    const newTitles = items.map((item, idx) => ({ idx, title: item.title }));
+    const existingList = existingTitles.slice(0, 50).map((t, i) => `${i}. ${t}`).join("\n");
+
+    const prompt = `You are a duplicate news detector. Compare these NEW articles against EXISTING articles in our database.
+
+EXISTING ARTICLES (already published):
+${existingList}
+
+NEW ARTICLES (candidates):
+${JSON.stringify(newTitles, null, 2)}
+
+For each NEW article, check if it covers the SAME event, announcement, or story as any EXISTING article.
+Two articles are duplicates if they report the same:
+- Acquisition/deal (e.g. "OpenAI acquires X" = "OpenAI buys X maker")
+- Product launch (e.g. "GPT-5 released" = "OpenAI launches GPT-5")
+- Government decision (e.g. "UK bans AI" = "Britain blocks AI training")
+- Research finding (same study from different outlets)
+- Company incident (same event reported differently)
+
+Return ONLY a JSON array of idx numbers of NEW articles that are NOT duplicates (unique articles only). Example: [0, 2, 5]`;
+
+    const result = await callGemini(prompt);
+    const uniqueIndices: number[] = JSON.parse(extractJSON(result));
+    const unique = uniqueIndices
+      .filter((idx) => idx >= 0 && idx < items.length)
+      .map((idx) => items[idx]);
+
+    console.log(`Deduplication: ${items.length} → ${unique.length} unique (${items.length - unique.length} duplicates removed)`);
+    return unique;
+  } catch (error) {
+    console.error("Deduplication failed, keeping all articles:", error);
+    return items;
+  }
+}
+
 // Step 1: Filter articles relevant to AI models, tools, and agents
 export async function filterArticles(
   items: RawFeedItem[]
@@ -207,13 +250,19 @@ Return ONLY the JSON object, no other text.`;
   }
 }
 
-// Process all articles: filter → classify + summarize + translate
+// Process all articles: deduplicate → filter → classify + summarize + translate
 export async function processAllArticles(
-  items: RawFeedItem[]
+  items: RawFeedItem[],
+  existingTitles?: string[]
 ): Promise<ProcessedArticle[]> {
   console.log(`Starting processing of ${items.length} raw articles...`);
 
-  const filtered = await filterArticles(items);
+  // Step 0: AI duplicate detection
+  const deduplicated = existingTitles
+    ? await deduplicateByMeaning(items, existingTitles)
+    : items;
+
+  const filtered = await filterArticles(deduplicated);
   console.log(`Filtered to ${filtered.length} relevant articles`);
 
   const concurrency = 5;

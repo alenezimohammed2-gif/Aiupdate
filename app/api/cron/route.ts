@@ -119,8 +119,9 @@ async function runCronJob(triggeredBy: string = "unknown") {
       });
     }
 
-    // Step 3: Process with Gemini (filter + classify + summarize + translate)
-    const processed = await processAllArticles(newItems);
+    // Step 3: Process with Gemini (deduplicate + filter + classify + summarize + translate)
+    const existingTitles = (existingArticles || []).map((a) => a.title_en);
+    const processed = await processAllArticles(newItems, existingTitles);
 
     // Step 4: Save to Supabase
     if (processed.length > 0) {

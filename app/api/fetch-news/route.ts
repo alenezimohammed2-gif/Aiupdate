@@ -94,8 +94,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Process with AI (filter + classify + summarize + translate)
-    const processed = await processAllArticles(newItems);
+    // Process with AI (deduplicate + filter + classify + summarize + translate)
+    const existingTitles = (existingArticles || []).map((a) => a.title_en);
+    const processed = await processAllArticles(newItems, existingTitles);
 
     // Save to Supabase
     if (processed.length > 0) {
