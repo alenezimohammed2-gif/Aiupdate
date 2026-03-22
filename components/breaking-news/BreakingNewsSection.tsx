@@ -558,15 +558,15 @@ function NewspaperLayout({ articles }: Props) {
   return (
     <div className="border border-border/30 rounded-2xl bg-card p-6">
       <a href={`/${locale}/article/${headline.id}`} className={`block group mb-4 pb-4 border-b border-border/30 transition-all duration-400 ${fading ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2">
-            <h3 className="font-serif font-bold text-2xl mb-3 group-hover:text-primary transition-colors">{getTitle(headline)}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="col-span-1 md:col-span-2">
+            <h3 className="font-serif font-bold text-xl md:text-2xl mb-3 group-hover:text-primary transition-colors">{getTitle(headline)}</h3>
             {headline.image_url && <img src={headline.image_url} alt="" className="w-full aspect-video object-cover rounded-lg" />}
           </div>
           <div className="flex flex-col justify-between h-full">
-            <p className="text-xl text-muted-foreground leading-loose">{getSummary(headline)}</p>
+            <p className="text-sm md:text-xl text-muted-foreground leading-relaxed md:leading-loose">{getSummary(headline)}</p>
             <div>
-              <span className="text-base text-primary block">{headline.source} • {getTime(headline)}</span>
+              <span className="text-sm md:text-base text-primary block">{headline.source} • {getTime(headline)}</span>
               {/* Progress bar */}
               <div className="mt-2 h-0.5 bg-border/30 rounded-full overflow-hidden">
                 <div className="h-full bg-primary rounded-full animate-progress" key={active} />
@@ -575,7 +575,7 @@ function NewspaperLayout({ articles }: Props) {
           </div>
         </div>
       </a>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
         {others.map((a, i) => (
           <button key={a.id} onClick={() => changeArticle(items.indexOf(a))}
             className="group border-r last:border-0 border-border/20 pr-4 last:pr-0 text-start hover:opacity-80 transition-opacity">

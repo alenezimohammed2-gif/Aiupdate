@@ -155,7 +155,7 @@ export default function NewsCard({ article, effect = "lift" }: NewsCardProps) {
         </div>
       )}
 
-      <div className="p-5 relative z-10">
+      <div className="p-3 md:p-5 relative z-10">
         <div className="flex items-center gap-2 mb-3">
           <span className="text-[11px] uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
             {categoryLabel}
@@ -163,11 +163,11 @@ export default function NewsCard({ article, effect = "lift" }: NewsCardProps) {
           <span className="text-[11px] text-muted-foreground">{article.source}</span>
         </div>
 
-        <h3 className="font-semibold text-base mb-2.5 leading-relaxed group-hover:text-primary transition-colors">
+        <h3 className="font-semibold text-sm md:text-base mb-2.5 leading-relaxed group-hover:text-primary transition-colors">
           {title}
         </h3>
 
-        <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+        <p className="text-sm text-muted-foreground mb-2 md:mb-4 leading-relaxed">
           {summary}
         </p>
 
