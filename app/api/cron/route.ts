@@ -190,6 +190,8 @@ async function runCronJob(triggeredBy: string = "unknown") {
       new_items: newItems.length,
       processed: processed.length,
       images_generated: imagesFromAI + imagesFromSource,
+      images_from_source: imagesFromSource,
+      images_from_ai: imagesFromAI,
       duration_ms: duration,
       status: "success",
       triggered_by: triggeredBy,

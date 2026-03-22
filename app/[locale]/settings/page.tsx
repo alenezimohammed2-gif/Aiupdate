@@ -854,7 +854,8 @@ export default function SettingsPage() {
                         <span>{isArabic ? "جُلب" : "Fetched"}: {log.fetched}</span>
                         <span>{isArabic ? "جديد" : "New"}: {log.new_items}</span>
                         <span>{isArabic ? "عُولج" : "Processed"}: {log.processed}</span>
-                        <span>{isArabic ? "صور" : "Img"}: {log.images_generated ?? 0}</span>
+                        <span>{isArabic ? "صور مصدر" : "Src img"}: {log.images_from_source ?? 0}</span>
+                        <span>{isArabic ? "صور AI" : "AI img"}: {log.images_from_ai ?? 0}</span>
                         <span>{isArabic ? "المدة" : "Duration"}: {(log.duration_ms / 1000).toFixed(1)}s</span>
                       </div>
                     ) : (
