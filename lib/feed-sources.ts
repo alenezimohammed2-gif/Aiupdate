@@ -38,8 +38,8 @@ export const feedSources: FeedSource[] = [
     category: "ai_lab",
   },
   {
-    name: "Mistral AI Blog",
-    url: "https://mistral.ai/feed.xml",
+    name: "Google Developers Blog",
+    url: "https://developers.googleblog.com/feeds/posts/default/-/ai?alt=rss",
     category: "ai_lab",
   },
   {
