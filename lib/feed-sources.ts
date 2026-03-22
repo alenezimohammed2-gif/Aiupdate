@@ -23,9 +23,9 @@ export const feedSources: FeedSource[] = [
     category: "ai_lab",
   },
   {
-    name: "Google Developers Blog",
-    url: "https://developers.googleblog.com/atom.xml",
-    category: "ai_lab",
+    name: "The Register AI",
+    url: "https://www.theregister.com/software/ai_ml/headlines.atom",
+    category: "tech_news",
   },
   {
     name: "Microsoft AI Blog",
