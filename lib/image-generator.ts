@@ -121,6 +121,11 @@ export async function extractSourceImage(
   }
 }
 
+export interface ImageResult {
+  url: string;
+  source: string; // "rss", "source_og", or "ai:<model_id>"
+}
+
 /**
  * Get an image for an article:
  * 1. Try extracting from source page (free)
@@ -135,26 +140,27 @@ export async function getArticleImage(
   imagePrompt?: string | null,
   imageStyle?: string | null,
   imageColors?: string | null
-): Promise<string | null> {
+): Promise<ImageResult | null> {
   console.log(`[Image] Processing image for: "${title.slice(0, 60)}"`);
 
   // Step 1: Try extracting from source page (free)
   const sourceImage = await extractSourceImage(sourceUrl);
   if (sourceImage) {
     console.log(`[Image] Using source image (free)`);
-    return sourceImage;
+    return { url: sourceImage, source: "source_og" };
   }
 
   // Step 2: Fall back to AI generation (paid)
+  const primaryModel = model || DEFAULT_IMAGE_MODEL;
   console.log(`[Image] Source extraction failed, falling back to AI generation`);
-  const aiImage = await generateArticleImage(title, category, articleId, model, imagePrompt, imageStyle, imageColors);
-  if (aiImage) return aiImage;
+  const aiImage = await generateArticleImage(title, category, articleId, primaryModel, imagePrompt, imageStyle, imageColors);
+  if (aiImage) return { url: aiImage, source: `ai:${primaryModel}` };
 
   // Step 3: Retry with fallback model if primary failed
-  const primaryModel = model || DEFAULT_IMAGE_MODEL;
   if (primaryModel !== FALLBACK_IMAGE_MODEL) {
     console.log(`[Image] Primary model failed, retrying with fallback: ${FALLBACK_IMAGE_MODEL}`);
-    return generateArticleImage(title, category, articleId, FALLBACK_IMAGE_MODEL, imagePrompt, imageStyle, imageColors);
+    const fallbackImage = await generateArticleImage(title, category, articleId, FALLBACK_IMAGE_MODEL, imagePrompt, imageStyle, imageColors);
+    if (fallbackImage) return { url: fallbackImage, source: `ai:${FALLBACK_IMAGE_MODEL}` };
   }
 
   return null;

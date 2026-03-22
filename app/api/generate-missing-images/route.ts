@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     let generated = 0;
     for (const article of articles) {
-      const imageUrl = await getArticleImage(
+      const result = await getArticleImage(
         article.title_en,
         article.category,
         article.id,
@@ -37,13 +37,13 @@ export async function POST(request: NextRequest) {
         article.image_style,
         article.image_colors
       );
-      if (imageUrl) {
+      if (result) {
         await supabase
           .from("articles")
-          .update({ image_url: imageUrl })
+          .update({ image_url: result.url, image_source: result.source })
           .eq("id", article.id);
         generated++;
-        console.log(`Image ${generated}/${articles.length}: ${article.title_en.slice(0, 50)}`);
+        console.log(`Image ${generated}/${articles.length} [${result.source}]: ${article.title_en.slice(0, 50)}`);
       }
     }
 

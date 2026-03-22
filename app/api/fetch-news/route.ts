@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
     const imageModel = settingsData?.selected_image_model || undefined;
     if (noImageArticles && noImageArticles.length > 0) {
       for (const article of noImageArticles) {
-        const imageUrl = await getArticleImage(
+        const result = await getArticleImage(
           article.title_en,
           article.category,
           article.id,
@@ -128,15 +128,15 @@ export async function POST(request: NextRequest) {
           article.image_style,
           article.image_colors
         );
-        if (imageUrl) {
+        if (result) {
           await supabase
             .from("articles")
-            .update({ image_url: imageUrl })
+            .update({ image_url: result.url, image_source: result.source })
             .eq("id", article.id);
-          if (imageUrl.includes("article-images")) {
-            imagesFromAI++;
-          } else {
+          if (result.source === "source_og") {
             imagesFromSource++;
+          } else {
+            imagesFromAI++;
           }
         }
       }

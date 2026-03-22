@@ -230,6 +230,7 @@ Return ONLY the JSON object, no other text.`;
       source: item.source,
       source_url: item.url,
       image_url: item.image,
+      image_source: item.image ? "rss" : null,
       image_prompt: parsed.image_prompt || null,
       image_style: parsed.image_style || null,
       image_colors: parsed.image_colors || null,
