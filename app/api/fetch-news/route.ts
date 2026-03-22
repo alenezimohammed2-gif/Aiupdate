@@ -108,7 +108,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate images for articles without images
-    let imagesGenerated = 0;
+    let imagesFromSource = 0;
+    let imagesFromAI = 0;
     const { data: noImageArticles } = await supabase
       .from("articles")
       .select("id, title_en, category, image_url, image_prompt, image_style, image_colors, source_url")
@@ -132,7 +133,11 @@ export async function POST(request: NextRequest) {
             .from("articles")
             .update({ image_url: imageUrl })
             .eq("id", article.id);
-          imagesGenerated++;
+          if (imageUrl.includes("article-images")) {
+            imagesFromAI++;
+          } else {
+            imagesFromSource++;
+          }
         }
       }
     }
@@ -152,7 +157,7 @@ export async function POST(request: NextRequest) {
       fetched: rawItems.length,
       new_items: newItems.length,
       processed: processed.length,
-      images_generated: imagesGenerated,
+      images_generated: imagesFromAI + imagesFromSource,
       duration_ms: duration,
       status: "success",
       triggered_by: "manual",
@@ -164,7 +169,8 @@ export async function POST(request: NextRequest) {
         fetched: rawItems.length,
         new: newItems.length,
         processed: processed.length,
-        imagesGenerated,
+        imagesFromSource,
+        imagesFromAI,
         duration_ms: duration,
       },
     });

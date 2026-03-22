@@ -128,7 +128,8 @@ export default function SettingsPage() {
     fetched: number;
     new: number;
     processed: number;
-    imagesGenerated?: number;
+    imagesFromSource?: number;
+    imagesFromAI?: number;
     duration_ms: number;
     message?: string;
   } | null>(null);
@@ -751,8 +752,12 @@ export default function SettingsPage() {
                     <span className="font-medium ms-1">{fetchResult.processed}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">{isArabic ? "صور:" : "Images:"}</span>
-                    <span className="font-medium ms-1">{fetchResult.imagesGenerated ?? 0}</span>
+                    <span className="text-muted-foreground">{isArabic ? "صور مصدر:" : "Source img:"}</span>
+                    <span className="font-medium ms-1">{fetchResult.imagesFromSource ?? 0}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">{isArabic ? "صور AI:" : "AI img:"}</span>
+                    <span className="font-medium ms-1">{fetchResult.imagesFromAI ?? 0}</span>
                   </div>
                   <div>
                     <span className="text-muted-foreground">{isArabic ? "المدة:" : "Duration:"}</span>
@@ -849,7 +854,7 @@ export default function SettingsPage() {
                         <span>{isArabic ? "جُلب" : "Fetched"}: {log.fetched}</span>
                         <span>{isArabic ? "جديد" : "New"}: {log.new_items}</span>
                         <span>{isArabic ? "عُولج" : "Processed"}: {log.processed}</span>
-                        <span>{isArabic ? "صور" : "Images"}: {log.images_generated ?? 0}</span>
+                        <span>{isArabic ? "صور" : "Img"}: {log.images_generated ?? 0}</span>
                         <span>{isArabic ? "المدة" : "Duration"}: {(log.duration_ms / 1000).toFixed(1)}s</span>
                       </div>
                     ) : (

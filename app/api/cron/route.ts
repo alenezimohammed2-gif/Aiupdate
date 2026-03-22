@@ -141,7 +141,8 @@ async function runCronJob(triggeredBy: string = "unknown") {
       .select("id, title_en, category, image_url, image_prompt, image_style, image_colors, source_url")
       .or("image_url.is.null,image_url.eq.");
 
-    let imagesGenerated = 0;
+    let imagesFromSource = 0;
+    let imagesFromAI = 0;
     const imageModel = settingsData?.selected_image_model || undefined;
     if (noImageArticles && noImageArticles.length > 0) {
       for (const article of noImageArticles) {
@@ -160,7 +161,11 @@ async function runCronJob(triggeredBy: string = "unknown") {
             .from("articles")
             .update({ image_url: imageUrl })
             .eq("id", article.id);
-          imagesGenerated++;
+          if (imageUrl.includes("article-images")) {
+            imagesFromAI++;
+          } else {
+            imagesFromSource++;
+          }
         }
       }
     }
@@ -184,7 +189,7 @@ async function runCronJob(triggeredBy: string = "unknown") {
       fetched: rawItems.length,
       new_items: newItems.length,
       processed: processed.length,
-      images_generated: imagesGenerated,
+      images_generated: imagesFromAI + imagesFromSource,
       duration_ms: duration,
       status: "success",
       triggered_by: triggeredBy,
