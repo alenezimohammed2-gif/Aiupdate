@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { ProcessedArticle, ArticleCategory } from "@/lib/types";
 import Header from "@/components/Header";
 import CategoryFilter from "@/components/CategoryFilter";
-import NewsCard from "@/components/NewsCard";
+import NewsCard, { CardEffect } from "@/components/NewsCard";
 import BreakingNewsSection from "@/components/breaking-news/BreakingNewsSection";
 import Footer from "@/components/Footer";
 import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
@@ -32,6 +32,7 @@ export default function HomeClient({ articles }: HomeClientProps) {
     ArticleCategory | "all"
   >("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const cardEffect: CardEffect = "pulse-shimmer";
 
   const filteredArticles =
     selectedCategory === "all"
@@ -75,11 +76,11 @@ export default function HomeClient({ articles }: HomeClientProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
+      <Header selectedCategory={selectedCategory} onSelectCategory={handleCategoryChange} />
 
       {/* Hero Section with Video Background */}
       {currentPage === 1 && selectedCategory === "all" && (
-        <section className="relative pt-24 pb-20 px-6 overflow-hidden min-h-[80vh] flex items-center justify-center">
+        <section className="relative pt-16 pb-12 px-6 overflow-hidden min-h-[50vh] flex items-center justify-center">
           {/* Video Background */}
           <div className="absolute inset-0 z-0">
             <video
@@ -108,20 +109,9 @@ export default function HomeClient({ articles }: HomeClientProps) {
             </div>
             <h1 className="font-bold tracking-tight leading-tight mb-4 text-shine" style={{ fontSize: "clamp(22px, 3vw, 36px)" }}>
               {isArabic
-                ? "آخر الأخبار والتحديثات في مجال الذكاء الاصطناعي"
-                : "Latest News & Updates in Artificial Intelligence"}
+                ? "كل جديد في مجال الذكاء الاصطناعي"
+                : "Your Daily Dose of AI News"}
             </h1>
-            <div className="animate-fade-in-delay-2 mt-8">
-              <a
-                href="#news"
-                className="inline-flex flex-col items-center text-primary hover:text-primary-hover transition-colors animate-bounce"
-              >
-                <span className="font-medium mb-1" style={{ fontSize: "14px" }}>
-                  {isArabic ? "اضغط هنا للاستعراض حسب التصنيف" : "Click here to browse by category"}
-                </span>
-                <ChevronDown className="w-10 h-10" />
-              </a>
-            </div>
           </div>
         </section>
       )}
@@ -141,14 +131,6 @@ export default function HomeClient({ articles }: HomeClientProps) {
       {/* Main Content */}
       <section id="news" className="px-6 py-16">
         <div className="max-w-7xl mx-auto">
-          {/* Category Filter */}
-          <div className="mb-10">
-            <CategoryFilter
-              selected={selectedCategory}
-              onSelect={handleCategoryChange}
-            />
-          </div>
-
           {/* Results count */}
           <div className="text-xs uppercase tracking-widest text-muted-foreground mb-8">
             {isArabic
@@ -160,7 +142,7 @@ export default function HomeClient({ articles }: HomeClientProps) {
           {paginatedArticles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedArticles.map((article) => (
-                <NewsCard key={article.id} article={article} />
+                <NewsCard key={article.id} article={article} effect={cardEffect} />
               ))}
             </div>
           ) : (
@@ -173,56 +155,59 @@ export default function HomeClient({ articles }: HomeClientProps) {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-16">
-              <button
-                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="flex items-center gap-1 px-4 py-2.5 rounded-full border border-border/50 hover:bg-card hover:border-border transition-all disabled:opacity-20 disabled:cursor-not-allowed text-sm"
-              >
-                {isArabic ? (
-                  <ChevronRight className="w-4 h-4" />
-                ) : (
-                  <ChevronLeft className="w-4 h-4" />
+            <>
+              <div className="flex items-center justify-center gap-2 mt-16">
+                <button
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="flex items-center gap-1 px-4 py-2.5 rounded-full border border-border/50 hover:bg-card hover:border-border transition-all disabled:opacity-20 disabled:cursor-not-allowed text-sm"
+                >
+                  {isArabic ? (
+                    <ChevronRight className="w-4 h-4" />
+                  ) : (
+                    <ChevronLeft className="w-4 h-4" />
+                  )}
+                  {isArabic ? "السابق" : "Previous"}
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`w-10 h-10 rounded-full text-sm font-medium transition-all ${
+                        currentPage === page
+                          ? "bg-primary text-white"
+                          : "border border-border/50 hover:bg-card hover:border-border"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
                 )}
-                {isArabic ? "السابق" : "Previous"}
-              </button>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`w-10 h-10 rounded-full text-sm font-medium transition-all ${
-                      currentPage === page
-                        ? "bg-primary text-white"
-                        : "border border-border/50 hover:bg-card hover:border-border"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
-
-              <button
-                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                className="flex items-center gap-1 px-4 py-2.5 rounded-full border border-border/50 hover:bg-card hover:border-border transition-all disabled:opacity-20 disabled:cursor-not-allowed text-sm"
-              >
-                {isArabic ? "التالي" : "Next"}
-                {isArabic ? (
-                  <ChevronLeft className="w-4 h-4" />
-                ) : (
-                  <ChevronRight className="w-4 h-4" />
-                )}
-              </button>
-
-              <a
-                href={`/${locale}/archive`}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-primary/50 text-primary hover:bg-primary/10 transition-all text-sm font-medium"
-              >
-                {isArabic ? "الأرشيف" : "Archive"}
-              </a>
-            </div>
+                <button
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center gap-1 px-4 py-2.5 rounded-full border border-border/50 hover:bg-card hover:border-border transition-all disabled:opacity-20 disabled:cursor-not-allowed text-sm"
+                >
+                  {isArabic ? "التالي" : "Next"}
+                  {isArabic ? (
+                    <ChevronLeft className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+              <div className="flex justify-center mt-4">
+                <a
+                  href={`/${locale}/archive`}
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-primary/50 text-primary hover:bg-primary/10 transition-all text-sm font-medium"
+                >
+                  {isArabic ? "الأرشيف" : "Archive"}
+                </a>
+              </div>
+            </>
           )}
         </div>
       </section>
