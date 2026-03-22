@@ -150,9 +150,9 @@ Return a JSON object with these exact fields:
   "tags": ["tag1", "tag2", "tag3"] (3-5 English keyword tags),
   "mentioned_models": ["model names mentioned, e.g. GPT-5, Claude 4"],
   "mentioned_companies": ["company names mentioned, e.g. OpenAI, Google"],
-  "image_prompt": "A 6-word description of the main visual element for a thumbnail image. Be specific to this article, not generic. Example: 'Robotic arm assembling circuit board' or 'Neural network brain glowing purple'",
-  "image_style": "The best artistic style for this article's thumbnail. Choose one: realistic, futuristic, scientific, editorial, cyberpunk, isometric, minimalist, dramatic",
-  "image_colors": "2-3 colors that best match the visual element and style. Example: 'neon green, black' or 'metallic gray, orange, dark blue'"
+  "image_prompt": "Describe a vivid, specific visual scene for this article thumbnail. Be creative and unique. Describe what we should SEE: the main subject, the setting, the mood, and specific visual details. Example: 'A massive crystal brain floating above a cyberpunk Tokyo skyline at sunset with data streams flowing like waterfalls'",
+  "image_style": "Choose the most fitting artistic style for THIS specific article. You MUST vary your choices. Options include but are not limited to: photorealistic, cinematic, oil painting, watercolor, concept art, anime, pixel art, 3D render, flat design, retro vintage, neon noir, paper cut, low poly, surrealist, editorial photography, architectural visualization, scientific diagram, infographic style. Pick what truly fits the article mood — NOT always futuristic.",
+  "image_colors": "Choose a UNIQUE color palette for this article. NEVER use electric blue as default. Consider warm palettes (amber, coral, burgundy, gold), cool palettes (teal, mint, lavender, slate), bold palettes (crimson and gold, emerald and cream), moody palettes (deep purple, charcoal, midnight), fresh palettes (lime, sky blue, peach). Match the colors to the article MOOD, not just tech = blue."
 }
 
 Return ONLY the JSON object, no other text.`;
