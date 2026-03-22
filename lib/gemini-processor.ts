@@ -106,7 +106,7 @@ export async function filterArticles(
       prompt += `\nPRIORITY KEYWORDS (must match at least one): ${FILTER_KEYWORDS.join(", ")}\n`;
     }
 
-    prompt += `\nIMPORTANT RULES:\n- When in doubt, INCLUDE the article. It is better to include a borderline article than to miss important news.\n- Articles about AI investments, funding rounds, and business deals ARE relevant even if they mention dollar amounts.\n- Articles about AI product launches and updates ARE relevant even if they seem promotional.\n- Articles about government decisions affecting AI companies ARE relevant.\n- Only exclude an article if it clearly has NO connection to AI developments.\n`;
+    prompt += `\nIMPORTANT RULES:\n- When in doubt, INCLUDE the article. It is better to include a borderline article than to miss important news.\n- Articles about AI investments, funding rounds, and business deals ARE relevant even if they mention dollar amounts.\n- Articles about AI product launches and updates ARE relevant even if they seem promotional.\n- Articles about government decisions affecting AI companies ARE relevant.\n- Only exclude an article if it clearly has NO connection to AI developments.\n- EXCLUDE smartphone, tablet, and consumer hardware news UNLESS the article is specifically about a new AI model, AI chip, or AI technology breakthrough. Simply adding "AI features" to a phone does NOT make it AI news.\n`;
 
     prompt += `\nArticles:\n${JSON.stringify(articlesForPrompt, null, 2)}\n\nReturn ONLY a JSON array of the idx numbers of accepted articles. Example: [0, 2, 5]`;
 
