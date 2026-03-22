@@ -70,15 +70,27 @@ export const feedSources: FeedSource[] = [
     category: "tech_news",
   },
 
+  // --- AI Companies (Medium Priority) ---
+  {
+    name: "Nvidia AI Blog",
+    url: "https://blogs.nvidia.com/feed/",
+    category: "ai_lab",
+  },
+  {
+    name: "AWS AI Blog",
+    url: "https://aws.amazon.com/blogs/machine-learning/feed/",
+    category: "ai_lab",
+  },
+
   // --- Community & Research (Medium Priority) ---
   {
-    name: "Hacker News AI",
-    url: "https://hnrss.org/newest?q=AI+model+LLM",
+    name: "MIT Technology Review",
+    url: "https://www.technologyreview.com/topic/artificial-intelligence/feed",
     category: "community",
   },
   {
-    name: "Reddit r/artificial",
-    url: "https://www.reddit.com/r/artificial/.rss",
+    name: "IEEE Spectrum AI",
+    url: "https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss",
     category: "community",
   },
   {
@@ -89,11 +101,6 @@ export const feedSources: FeedSource[] = [
   {
     name: "SiliconANGLE AI",
     url: "https://siliconangle.com/category/ai/feed",
-    category: "community",
-  },
-  {
-    name: "One Useful Thing",
-    url: "https://www.oneusefulthing.org/feed",
     category: "community",
   },
 ];
