@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
     const settings = {
       id: SETTINGS_ID,
       selected_model: body.selected_model || DEFAULT_SETTINGS.selected_model,
+      selected_image_model: body.selected_image_model || DEFAULT_SETTINGS.selected_image_model,
       keywords: body.keywords || [],
       custom_instructions_include: body.custom_instructions_include || "",
       custom_instructions_exclude: body.custom_instructions_exclude || "",

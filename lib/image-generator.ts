@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from "./supabase";
 
 const DEFAULT_IMAGE_MODEL = "google/gemini-3-pro-image-preview";
+const FALLBACK_IMAGE_MODEL = "google/gemini-2.5-flash-image";
 
 // Blocked keywords in image URLs — these are not article images
 const BLOCKED_KEYWORDS = [
@@ -146,7 +147,17 @@ export async function getArticleImage(
 
   // Step 2: Fall back to AI generation (paid)
   console.log(`[Image] Source extraction failed, falling back to AI generation`);
-  return generateArticleImage(title, category, articleId, model, imagePrompt, imageStyle, imageColors);
+  const aiImage = await generateArticleImage(title, category, articleId, model, imagePrompt, imageStyle, imageColors);
+  if (aiImage) return aiImage;
+
+  // Step 3: Retry with fallback model if primary failed
+  const primaryModel = model || DEFAULT_IMAGE_MODEL;
+  if (primaryModel !== FALLBACK_IMAGE_MODEL) {
+    console.log(`[Image] Primary model failed, retrying with fallback: ${FALLBACK_IMAGE_MODEL}`);
+    return generateArticleImage(title, category, articleId, FALLBACK_IMAGE_MODEL, imagePrompt, imageStyle, imageColors);
+  }
+
+  return null;
 }
 
 /**
@@ -205,13 +216,20 @@ Important: Do NOT include any text, letters, words, or watermarks in the image. 
         body: JSON.stringify({
           model: selectedModel,
           messages: [{ role: "user", content: prompt }],
+          max_tokens: 4096,
         }),
       }
     );
 
     if (!response.ok) {
       const errorBody = await response.text().catch(() => "unable to read body");
-      console.error(`[Image AI] FAILED - API returned HTTP ${response.status}: ${errorBody.slice(0, 200)}`);
+      if (response.status === 402) {
+        console.error(`[Image AI] CREDITS LOW - OpenRouter credits insufficient. Add credits at https://openrouter.ai/settings/credits. Response: ${errorBody.slice(0, 200)}`);
+      } else if (response.status === 429) {
+        console.error(`[Image AI] RATE LIMITED - Too many requests. Response: ${errorBody.slice(0, 200)}`);
+      } else {
+        console.error(`[Image AI] FAILED - API returned HTTP ${response.status}: ${errorBody.slice(0, 200)}`);
+      }
       return null;
     }
 
