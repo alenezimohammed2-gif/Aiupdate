@@ -137,7 +137,7 @@ async function runCronJob(triggeredBy: string = "unknown") {
     // Step 5: Generate images for articles without images
     const { data: noImageArticles } = await supabase
       .from("articles")
-      .select("id, title_en, category, image_url")
+      .select("id, title_en, category, image_url, image_prompt, image_style, image_colors")
       .or("image_url.is.null,image_url.eq.");
 
     let imagesGenerated = 0;
@@ -148,7 +148,10 @@ async function runCronJob(triggeredBy: string = "unknown") {
           article.title_en,
           article.category,
           article.id,
-          imageModel
+          imageModel,
+          article.image_prompt,
+          article.image_style,
+          article.image_colors
         );
         if (imageUrl) {
           await supabase

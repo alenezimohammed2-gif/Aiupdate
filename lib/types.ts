@@ -19,6 +19,9 @@ export interface ProcessedArticle {
   source: string;
   source_url: string;
   image_url: string | null;
+  image_prompt: string | null;
+  image_style: string | null;
+  image_colors: string | null;
   published_at: string;
   processed_at: string;
   relevance_score: number;

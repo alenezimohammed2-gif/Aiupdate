@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
     let imagesGenerated = 0;
     const { data: noImageArticles } = await supabase
       .from("articles")
-      .select("id, title_en, category, image_url")
+      .select("id, title_en, category, image_url, image_prompt, image_style, image_colors")
       .or("image_url.is.null,image_url.eq.");
 
     const imageModel = settingsData?.selected_image_model || undefined;
@@ -120,7 +120,10 @@ export async function POST(request: NextRequest) {
           article.title_en,
           article.category,
           article.id,
-          imageModel
+          imageModel,
+          article.image_prompt,
+          article.image_style,
+          article.image_colors
         );
         if (imageUrl) {
           await supabase

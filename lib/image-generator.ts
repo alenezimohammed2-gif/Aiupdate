@@ -1,46 +1,43 @@
 import { getSupabaseAdmin } from "./supabase";
-import { ArticleCategory } from "./types";
 
 const DEFAULT_IMAGE_MODEL = "google/gemini-3-pro-image-preview";
-
-const categoryStyles: Record<ArticleCategory, string> = {
-  new_models:
-    "Futuristic 3D render style. Glowing neural network brain with light particles. Dark background with neon blue and purple accents. Cinematic lighting, depth of field.",
-  model_updates:
-    "Clean isometric illustration style. Software update concept with gears, arrows, and data flow. Soft gradient colors (blue to teal). Modern and minimal.",
-  ai_tools:
-    "Flat digital art style. Vibrant colors, geometric shapes representing tools and workflows. Orange and blue palette. Modern startup aesthetic.",
-  ai_agents:
-    "Cyberpunk neon style. Autonomous robot or digital agent in action. Dark background with glowing neon lines (green and cyan). Futuristic atmosphere.",
-  benchmarks:
-    "Data visualization style. Abstract 3D bar charts, performance graphs, and metrics floating in space. Blue and white color scheme. Professional and analytical.",
-  deals:
-    "Photorealistic corporate style. Handshake concept with digital overlay, connected nodes, partnership imagery. Gold and dark blue tones. Business professional.",
-  research:
-    "Scientific illustration style. DNA helix, molecular structures, or abstract mathematical patterns. Deep indigo and white palette. Academic and elegant.",
-};
 
 export async function generateArticleImage(
   title: string,
   category: string,
   articleId: string,
-  model?: string
+  model?: string,
+  imagePrompt?: string | null,
+  imageStyle?: string | null,
+  imageColors?: string | null
 ): Promise<string | null> {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) return null;
 
   try {
-    const style =
-      categoryStyles[category as ArticleCategory] ||
-      "Modern tech style. Clean, minimal. Blue and dark tones.";
+    let prompt: string;
 
-    const prompt = `Generate a professional thumbnail image for this AI news article. NO TEXT OR WORDS on the image.
+    if (imagePrompt && imageStyle && imageColors) {
+      // New: AI-determined style per article
+      prompt = `Generate a professional thumbnail image for this AI news article. NO TEXT OR WORDS on the image.
 
 Title: "${title}"
 
-Visual style: ${style}
+Visual element: ${imagePrompt}
+Artistic style: ${imageStyle}
+Color palette: ${imageColors}
+
+Important: Do NOT include any text, letters, words, or watermarks in the image. Pure visual only. Make the image visually striking and professional.`;
+    } else {
+      // Fallback: generic style based on title
+      prompt = `Generate a professional thumbnail image for this AI news article. NO TEXT OR WORDS on the image.
+
+Title: "${title}"
+
+Create a visually striking image that represents the core topic of this article. Choose an appropriate artistic style and color palette that matches the subject matter. Make it professional and eye-catching.
 
 Important: Do NOT include any text, letters, words, or watermarks in the image. Pure visual only.`;
+    }
 
     const response = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",

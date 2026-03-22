@@ -149,7 +149,10 @@ Return a JSON object with these exact fields:
   "relevance_score": number from 1-10 (10 = most important),
   "tags": ["tag1", "tag2", "tag3"] (3-5 English keyword tags),
   "mentioned_models": ["model names mentioned, e.g. GPT-5, Claude 4"],
-  "mentioned_companies": ["company names mentioned, e.g. OpenAI, Google"]
+  "mentioned_companies": ["company names mentioned, e.g. OpenAI, Google"],
+  "image_prompt": "A 6-word description of the main visual element for a thumbnail image. Be specific to this article, not generic. Example: 'Robotic arm assembling circuit board' or 'Neural network brain glowing purple'",
+  "image_style": "The best artistic style for this article's thumbnail. Choose one: realistic, futuristic, scientific, editorial, cyberpunk, isometric, minimalist, dramatic",
+  "image_colors": "2-3 colors that best match the visual element and style. Example: 'neon green, black' or 'metallic gray, orange, dark blue'"
 }
 
 Return ONLY the JSON object, no other text.`;
@@ -184,6 +187,9 @@ Return ONLY the JSON object, no other text.`;
       source: item.source,
       source_url: item.url,
       image_url: item.image,
+      image_prompt: parsed.image_prompt || null,
+      image_style: parsed.image_style || null,
+      image_colors: parsed.image_colors || null,
       published_at: item.published || new Date().toISOString(),
       processed_at: new Date().toISOString(),
       relevance_score: Math.min(10, Math.max(1, parsed.relevance_score || 5)),
