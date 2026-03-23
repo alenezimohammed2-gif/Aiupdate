@@ -91,12 +91,16 @@ NEW ARTICLES (candidates):
 ${JSON.stringify(newTitles, null, 2)}
 
 For each NEW article, check if it covers the SAME event, announcement, or story as any EXISTING article.
+Also check if any NEW articles are duplicates OF EACH OTHER (same event reported by different sources). If two NEW articles cover the same event, keep only the one with the most informative title.
+
 Two articles are duplicates if they report the same:
 - Acquisition/deal (e.g. "OpenAI acquires X" = "OpenAI buys X maker")
 - Product launch (e.g. "GPT-5 released" = "OpenAI launches GPT-5")
 - Government decision (e.g. "UK bans AI" = "Britain blocks AI training")
 - Research finding (same study from different outlets)
 - Company incident (same event reported differently)
+- Factory/facility announcement (e.g. "Musk building chip plant in Texas" = "Musk unveils chip manufacturing plans for Tesla")
+- Funding/investment (e.g. "Startup raises $100M" = "Startup closes $100M Series B")
 
 Return ONLY a JSON array of idx numbers of NEW articles that are NOT duplicates (unique articles only). Example: [0, 2, 5]`;
 
